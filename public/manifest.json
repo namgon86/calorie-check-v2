@@ -1,0 +1,14 @@
+{
+  "name": "CalorieCheck",
+  "short_name": "CalorieCheck",
+  "description": "AI 칼로리 분석 & 식단 관리 앱",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a5c45",
+  "theme_color": "#1a5c45",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

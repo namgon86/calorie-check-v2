@@ -1,0 +1,2039 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a1a2e">
+<title>CalorieCheck</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#F2F0EB;
+  --card:#FFFFFF;
+  --card2:#F8F6F1;
+  --green:#2D7A5F;
+  --green-l:#E8F5EE;
+  --green-m:#4CAF82;
+  --green-d:#1A5C45;
+  --accent:#FF6B35;
+  --accent-l:#FFF0EB;
+  --blue:#3B82C4;
+  --blue-l:#EBF3FF;
+  --text:#1C1C1E;
+  --text2:#6B6B6B;
+  --text3:#ABABAB;
+  --border:#E8E4DC;
+  --shadow:0 2px 20px rgba(0,0,0,0.08);
+  --shadow-lg:0 8px 40px rgba(0,0,0,0.12);
+  --r:20px;--r-sm:14px;--r-xs:10px;
+  --font:'Outfit','Noto Sans KR',sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex;justify-content:center}
+/* PWA 설치 배너 */
+.pwa-banner{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:var(--card);border-top:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:12px;z-index:500;box-shadow:0 -4px 20px rgba(0,0,0,0.1);animation:slideUp 0.3s ease}
+@keyframes slideUp{from{transform:translateX(-50%) translateY(100%)}to{transform:translateX(-50%) translateY(0)}}
+.pwa-banner-ico{width:44px;height:44px;background:linear-gradient(135deg,var(--green-m),var(--green));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.pwa-banner-info{flex:1;min-width:0}
+.pwa-banner-title{font-size:14px;font-weight:700;color:var(--text)}
+.pwa-banner-sub{font-size:11px;color:var(--text2);margin-top:2px}
+.pwa-banner-btn{background:var(--green);color:#fff;border:none;border-radius:var(--r-xs);padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0}
+.pwa-banner-close{background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:4px;flex-shrink:0;line-height:1}
+
+/* Auth Modal */
+.auth-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
+.auth-modal{background:var(--card);border-radius:var(--r);padding:28px 24px;width:100%;max-width:400px;box-shadow:var(--shadow-lg)}
+.auth-logo{font-size:24px;font-weight:800;color:var(--text);letter-spacing:-0.5px;margin-bottom:6px}
+.auth-logo span{color:var(--green)}
+.auth-sub{font-size:13px;color:var(--text2);margin-bottom:24px;line-height:1.5}
+.auth-tabs{display:flex;gap:0;margin-bottom:20px;background:var(--bg);border-radius:var(--r-xs);padding:3px}
+.auth-tab{flex:1;padding:8px;text-align:center;border:none;background:none;font-size:13px;font-weight:600;color:var(--text3);cursor:pointer;border-radius:calc(var(--r-xs) - 2px);font-family:var(--font);transition:all 0.15s}
+.auth-tab.on{background:var(--card);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.auth-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--r-xs);font-size:14px;font-family:var(--font);color:var(--text);background:var(--bg);margin-bottom:10px;transition:border-color 0.15s}
+.auth-input:focus{outline:none;border-color:var(--green)}
+.auth-btn{width:100%;padding:13px;border:none;border-radius:var(--r-xs);font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:10px;transition:all 0.15s}
+.auth-btn-green{background:var(--green);color:#fff}
+.auth-btn-green:hover{background:var(--green-d)}
+.auth-btn-google{background:#fff;color:#3c4043;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;gap:8px}
+.auth-btn-google:hover{background:var(--bg)}
+.auth-divider{display:flex;align-items:center;gap:10px;margin:4px 0 10px;color:var(--text3);font-size:12px}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.auth-error{font-size:12px;color:#E24B4A;margin-bottom:8px;padding:8px 12px;background:#FFF5F5;border-radius:var(--r-xs);display:none}
+.auth-error.on{display:block}
+
+/* User header */
+.user-bar{display:flex;align-items:center;gap:8px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer;flex-shrink:0;overflow:hidden}
+.user-avatar img{width:100%;height:100%;object-fit:cover}
+.user-name{font-size:13px;color:rgba(255,255,255,0.9);font-weight:600;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.logout-btn{background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:99px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:var(--font);font-weight:600}
+.app{width:100%;max-width:440px;min-height:100vh;display:flex;flex-direction:column;position:relative}
+
+/* Header */
+.hdr{padding:52px 20px 16px;background:linear-gradient(160deg,#1a5c45 0%,#2D7A5F 60%,#3a9970 100%);position:relative;overflow:hidden}
+.hdr::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:rgba(255,255,255,0.05);border-radius:50%}
+.hdr::after{content:'';position:absolute;bottom:-60px;left:-30px;width:160px;height:160px;background:rgba(255,255,255,0.04);border-radius:50%}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1}
+.logo{font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+.logo span{color:#A8E6C8;font-weight:300}
+.lang-btn{background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:99px;padding:6px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);backdrop-filter:blur(10px)}
+.hdr-summary{margin-top:16px;position:relative;z-index:1}
+.hdr-date{font-size:12px;color:rgba(255,255,255,0.7);margin-bottom:4px;font-weight:400}
+.hdr-cal{font-size:42px;font-weight:800;color:#fff;line-height:1;letter-spacing:-1px}
+.hdr-cal span{font-size:16px;font-weight:400;color:rgba(255,255,255,0.8);letter-spacing:0}
+.hdr-prog{margin-top:12px;height:6px;background:rgba(255,255,255,0.2);border-radius:99px;overflow:hidden}
+.hdr-prog-fill{height:100%;background:linear-gradient(90deg,#A8E6C8,#fff);border-radius:99px;transition:width 0.6s ease}
+.hdr-prog-info{display:flex;justify-content:space-between;margin-top:6px}
+.hdr-prog-pct{font-size:12px;color:rgba(255,255,255,0.9);font-weight:600}
+.hdr-prog-goal{font-size:12px;color:rgba(255,255,255,0.6)}
+
+/* Nav */
+.nav{background:var(--card);border-bottom:1px solid var(--border);display:flex;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.nb{flex:1;padding:13px 0;border:none;background:none;font-size:11px;font-weight:600;color:var(--text3);cursor:pointer;font-family:var(--font);display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:2px solid transparent;transition:all 0.15s;letter-spacing:0.02em}
+.nb-ico{font-size:18px;line-height:1}
+.nb.on{color:var(--green);border-bottom-color:var(--green)}
+
+/* Pages */
+.pg{display:none;padding:16px;flex-direction:column;gap:14px;flex:1;padding-bottom:24px}
+.pg.on{display:flex}
+
+/* Section title */
+.sec-title{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:2px}
+
+/* Upload */
+.upload{border:2px dashed var(--border);border-radius:var(--r);background:var(--card);overflow:hidden;min-height:190px;display:flex;align-items:center;justify-content:center;position:relative;transition:all 0.2s}
+.upload.filled{border-style:solid;border-color:var(--green-m);min-height:auto}
+.upload img{width:100%;max-height:260px;object-fit:cover;display:block}
+.upload-ph{text-align:center;padding:24px 20px}
+.uico{font-size:44px;margin-bottom:10px;filter:grayscale(0.2)}
+.ut{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px}
+.us{font-size:12px;color:var(--text3);margin-bottom:18px}
+.upload-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.upload-btn{display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:99px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);border:none;transition:all 0.15s}
+.upload-btn-cam{background:var(--green);color:#fff;box-shadow:0 3px 10px rgba(45,122,95,0.3)}
+.upload-btn-cam:hover{background:var(--green-d)}
+.upload-btn-gal{background:var(--card2);color:var(--text2);border:1.5px solid var(--border)}
+.upload-btn-gal:hover{background:var(--green-l);border-color:var(--green-m);color:var(--green-d)}
+.upload-retake{position:absolute;bottom:10px;right:10px;display:flex;gap:6px}
+.retake-btn{background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:99px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);backdrop-filter:blur(4px);display:flex;align-items:center;gap:5px}
+.retake-btn:hover{background:rgba(0,0,0,0.75)}
+
+/* Mode selector */
+.mode-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.mode-btn{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:10px 6px;text-align:center;cursor:pointer;transition:all 0.15s;font-family:var(--font)}
+.mode-btn.on{border-color:var(--green);background:var(--green-l)}
+.mode-ico{font-size:20px;margin-bottom:4px}
+.mode-t{font-size:11px;font-weight:700;color:var(--text2)}
+.mode-btn.on .mode-t{color:var(--green-d)}
+
+/* Buttons */
+.btn{width:100%;padding:15px;border:none;border-radius:var(--r-sm);font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.15s;letter-spacing:0.01em}
+.btn-green{background:linear-gradient(135deg,var(--green-m),var(--green));color:#fff;box-shadow:0 4px 16px rgba(45,122,95,0.3)}
+.btn-green:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(45,122,95,0.4)}
+.btn-green:active{transform:translateY(0)}
+.btn-green:disabled{background:#D0D0D0;color:#999;cursor:not-allowed;box-shadow:none;transform:none}
+.btn-outline{background:none;border:1.5px solid var(--green);color:var(--green-d);font-size:14px;padding:12px}
+.btn-outline:hover{background:var(--green-l)}
+.btn-danger{background:none;border:1.5px solid #FFB3A0;color:#E05030;font-size:14px;padding:12px}
+
+/* Loading */
+.loading{display:none;background:var(--card);border-radius:var(--r);padding:28px;text-align:center;box-shadow:var(--shadow)}
+.loading.on{display:block}
+.spin{width:44px;height:44px;border:3px solid var(--green-l);border-top-color:var(--green);border-radius:50%;animation:spin 0.75s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin-t{font-size:14px;font-weight:600;color:var(--text2)}
+
+/* Result card */
+.result{display:none;border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+.result.on{display:block}
+.res-hero{background:linear-gradient(135deg,#1a5c45,#2D7A5F);padding:20px}
+.res-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tag{font-size:10px;font-weight:700;padding:3px 10px;border-radius:99px;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.9);border:1px solid rgba(255,255,255,0.2);letter-spacing:0.03em}
+.food-name{font-size:20px;font-weight:800;color:#fff;margin-bottom:8px;line-height:1.2}
+.cal-row{display:flex;align-items:baseline;gap:6px;margin-bottom:4px}
+.cal-num{font-size:54px;font-weight:800;color:#fff;line-height:1;letter-spacing:-2px}
+.cal-unit{font-size:16px;font-weight:500;color:rgba(255,255,255,0.8)}
+.health-row{display:flex;align-items:center;gap:8px;margin-top:10px}
+.health-label{font-size:11px;color:rgba(255,255,255,0.7);font-weight:600}
+.health-dots{display:flex;gap:4px}
+.health-dot{width:18px;height:6px;border-radius:99px;background:rgba(255,255,255,0.2)}
+.health-dot.on{background:#A8E6C8}
+.macros{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border)}
+.mac{background:var(--card);padding:12px 6px;text-align:center}
+.mac-v{font-size:16px;font-weight:700;color:var(--text)}
+.mac-l{font-size:10px;font-weight:600;color:var(--text3);margin-top:2px;letter-spacing:0.02em}
+.res-extra{background:var(--card);padding:16px 18px}
+.extra-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.extra-row:last-child{border-bottom:none}
+.extra-l{font-size:13px;color:var(--text2)}
+.extra-v{font-size:13px;font-weight:600;color:var(--text)}
+.res-detail{background:var(--card2);padding:14px 18px;border-top:1px solid var(--border)}
+.detail-t{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px}
+.detail-body{font-size:13px;color:var(--text2);line-height:1.8}
+.res-actions{background:var(--card);padding:14px 16px;display:flex;gap:8px;border-top:1px solid var(--border)}
+.res-actions .btn{flex:1;padding:12px;font-size:13px}
+
+/* Menu result */
+.menu-result{display:none;border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+.menu-result.on{display:block}
+.menu-header{background:linear-gradient(135deg,#2C5282,#3B82C4);padding:16px 18px}
+.menu-title{font-size:16px;font-weight:800;color:#fff;margin-bottom:2px}
+.menu-sub{font-size:12px;color:rgba(255,255,255,0.7)}
+.menu-item{background:var(--card);padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.menu-item:last-child{border-bottom:none}
+.menu-item-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px}
+.menu-item-mac{font-size:11px;color:var(--text3)}
+.menu-item-cal{font-size:20px;font-weight:800;color:var(--green-d);text-align:right}
+.menu-item-cal span{font-size:11px;font-weight:500;color:var(--text3);display:block}
+
+/* Exercise card */
+.exercise-card{background:var(--card);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+.exercise-header{background:linear-gradient(135deg,#C25A3B,#E07050);padding:16px 18px}
+.exercise-title{font-size:15px;font-weight:800;color:#fff}
+.exercise-sub{font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px}
+.exercise-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
+.ex-item{background:var(--card);padding:14px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:10px}
+.ex-selected{background:var(--accent-l)!important;border:1.5px solid var(--accent)}
+.ex-item:hover{background:var(--accent-l)}
+.ex-ico{font-size:22px;width:36px;text-align:center}
+.ex-info{flex:1}
+.ex-name{font-size:13px;font-weight:600;color:var(--text)}
+.ex-cal{font-size:11px;color:var(--text3);margin-top:1px}
+.ex-custom{background:var(--card);padding:14px 16px;border-top:1px solid var(--border)}
+.ex-custom-row{display:flex;gap:8px;align-items:center;margin-top:10px}
+.ex-input{flex:1;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r-xs);font-size:14px;font-family:var(--font);background:var(--bg);color:var(--text)}
+.ex-input:focus{outline:none;border-color:var(--accent)}
+.ex-add-btn{padding:10px 16px;background:var(--accent);color:#fff;border:none;border-radius:var(--r-xs);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap}
+
+/* History / Calendar */
+.cal-wrap{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.cal-header{padding:16px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.cal-nav{display:flex;align-items:center;gap:12px}
+.cal-month{font-size:16px;font-weight:800;color:var(--text)}
+.cal-arrow{background:none;border:none;font-size:18px;cursor:pointer;color:var(--text2);padding:4px 8px;border-radius:8px}
+.cal-arrow:hover{background:var(--bg)}
+.cal-grid{padding:12px}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
+.cal-day-label{text-align:center;font-size:10px;font-weight:700;color:var(--text3);padding:4px 0;letter-spacing:0.05em}
+.cal-cells{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-cell{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:var(--r-xs);cursor:pointer;transition:all 0.1s;position:relative;padding:2px;color:var(--text)}
+.cal-cell:hover{background:var(--bg)}
+.cal-cell.today{background:var(--green-l);border:1.5px solid var(--green-m)}
+.cal-cell.has-data{background:var(--green-l)}
+.cal-cell.selected{background:var(--green);color:#fff}
+.cal-cell.other-month{opacity:0.3}
+.cal-num{font-size:13px;font-weight:600;line-height:1;color:var(--text)}
+.cal-cell.selected .cal-num{color:#fff}
+.cal-dot{width:4px;height:4px;border-radius:50%;background:var(--green-m);margin-top:2px}
+.cal-cell.selected .cal-dot{background:rgba(255,255,255,0.7)}
+.cal-cell.has-data:not(.selected) .cal-cal-mini{font-size:8px;color:var(--green-d);font-weight:600;margin-top:1px}
+
+/* Day detail */
+.day-detail{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.day-detail-header{background:linear-gradient(135deg,var(--green-d),var(--green));padding:16px 18px}
+.day-detail-date{font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:4px}
+.day-detail-cal{font-size:32px;font-weight:800;color:#fff;letter-spacing:-1px}
+.day-detail-cal span{font-size:14px;font-weight:400;color:rgba(255,255,255,0.8);letter-spacing:0}
+.day-macros{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)}
+.day-mac{background:var(--card);padding:10px;text-align:center}
+.day-mac-v{font-size:14px;font-weight:700;color:var(--text)}
+.day-mac-l{font-size:10px;color:var(--text3);margin-top:1px}
+.day-logs{background:var(--card)}
+.day-log-item{padding:12px 16px;display:flex;gap:12px;align-items:center;border-bottom:1px solid var(--border)}
+.day-log-item:last-child{border-bottom:none}
+.day-log-thumb{width:48px;height:48px;border-radius:10px;object-fit:cover;background:var(--bg);flex-shrink:0}
+.day-log-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.day-log-cal{font-size:18px;font-weight:800;color:var(--green-d)}
+.day-log-cal span{font-size:11px;font-weight:500;color:var(--text3)}
+.day-log-mac{font-size:10px;color:var(--text3);margin-top:2px}
+.day-log-time{font-size:10px;color:var(--text3);margin-top:1px}
+.day-empty{padding:24px;text-align:center;color:var(--text3);font-size:13px}
+
+/* Settings */
+.set-card{background:var(--card);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+.set-row{display:flex;justify-content:space-between;align-items:center;padding:15px 18px;border-bottom:1px solid var(--border)}
+.set-row:last-child{border-bottom:none}
+.set-l{font-size:14px;font-weight:600;color:var(--text)}
+.set-s{font-size:11px;color:var(--text3);margin-top:2px}
+.set-v{font-size:14px;font-weight:700;color:var(--green-d)}
+.goal-in{width:80px;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r-xs);font-size:14px;font-weight:700;text-align:right;font-family:var(--font);color:var(--text);background:var(--bg)}
+.goal-in:focus{outline:none;border-color:var(--green)}
+
+/* Toast */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:#1C1C1E;color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:600;opacity:0;transition:all 0.3s;z-index:999;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* 추천 카드 */
+.rec-card{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 14px;text-decoration:none;transition:all 0.15s;cursor:pointer}
+.rec-card:hover{border-color:var(--green-m);background:var(--green-l);transform:translateY(-1px);box-shadow:var(--shadow)}
+.rec-ico{font-size:28px;width:44px;height:44px;background:var(--card2);border-radius:var(--r-xs);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rec-info{flex:1;min-width:0}
+.rec-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
+.rec-desc{font-size:11px;color:var(--text2);line-height:1.5}
+.rec-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px;white-space:nowrap;flex-shrink:0}
+.rec-badge-green{background:var(--green-l);color:var(--green-d)}
+.rec-badge-blue{background:var(--blue-l);color:var(--blue)}
+.rec-badge-amber{background:#FFF8E1;color:#B07800}
+.rec-arrow{font-size:16px;color:var(--text3);flex-shrink:0}
+
+/* Exercise log items */
+.ex-log-item{background:var(--card);border-radius:var(--r-sm);padding:12px 14px;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border)}
+.ex-log-left{display:flex;align-items:center;gap:10px}
+.ex-log-ico{font-size:20px;width:36px;text-align:center}
+.ex-log-name{font-size:13px;font-weight:600;color:var(--text)}
+.ex-log-time{font-size:11px;color:var(--text3);margin-top:1px}
+.ex-log-cal{font-size:18px;font-weight:800;color:var(--accent)}
+.ex-log-cal span{font-size:11px;font-weight:500;color:var(--text3)}
+</style>
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+    import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+    import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, deleteDoc, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA7PXj8ULP5J20A_TE44leBNee1_a2B7f0",
+      authDomain: "caloriecheck-fecbc.firebaseapp.com",
+      projectId: "caloriecheck-fecbc",
+      storageBucket: "caloriecheck-fecbc.firebasestorage.app",
+      messagingSenderId: "867953110244",
+      appId: "1:867953110244:web:66e5a595946a39139a90f1",
+      measurementId: "G-VLZ4FE9JQM"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const googleProvider = new GoogleAuthProvider();
+
+    // 전역 노출
+    window._fbAuth = auth;
+    window._fbDb = db;
+    window._fbGoogleProvider = googleProvider;
+    window._fbSignInWithPopup = signInWithPopup;
+    window._fbCreateUser = createUserWithEmailAndPassword;
+    window._fbSignIn = signInWithEmailAndPassword;
+    window._fbSignOut = signOut;
+    window._fbOnAuthStateChanged = onAuthStateChanged;
+    window._fbUpdateProfile = updateProfile;
+    window._fbDoc = doc;
+    window._fbSetDoc = setDoc;
+    window._fbGetDoc = getDoc;
+    window._fbCollection = collection;
+    window._fbAddDoc = addDoc;
+    window._fbGetDocs = getDocs;
+    window._fbDeleteDoc = deleteDoc;
+    window._fbQuery = query;
+    window._fbWhere = where;
+    window._fbOrderBy = orderBy;
+
+    // 로그인 상태 감지
+    onAuthStateChanged(auth, (user) => {
+      window._currentUser = user;
+      if(typeof window.onAuthChanged === 'function') window.onAuthChanged(user);
+    });
+  </script>
+</head>
+<body>
+<div class="app">
+
+  <div class="hdr" id="hdr">
+    <div class="hdr-top">
+      <div class="logo">Calorie<span>Check</span></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div id="userBar" class="user-bar" style="display:none">
+          <div class="user-avatar" id="userAvatar" onclick="showUserMenu()">?</div>
+          <div class="user-name" id="userName"></div>
+          <button class="logout-btn" id="logoutBtn" onclick="doLogout()">로그아웃</button>
+        </div>
+        <button id="loginShowBtn" onclick="showAuthModal()" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:99px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);display:none">로그인</button>
+        <button class="lang-btn" id="langBtn" onclick="toggleLang()">English</button>
+      </div>
+    </div>
+    <div class="hdr-summary">
+      <div class="hdr-date" id="hdrDate">오늘</div>
+      <div class="hdr-cal"><span id="hdrCal">0</span> <span>kcal</span></div>
+      <div class="hdr-prog"><div class="hdr-prog-fill" id="hdrProgFill" style="width:0%"></div></div>
+      <div class="hdr-prog-info">
+        <span class="hdr-prog-pct" id="hdrProgPct">0%</span>
+        <span class="hdr-prog-goal" id="hdrProgGoal">목표 2000kcal</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="nb on" id="nb-a" onclick="go('a')"><span class="nb-ico">📷</span><span id="nbt-a">분석</span></button>
+    <button class="nb" id="nb-c" onclick="go('c')"><span class="nb-ico">📅</span><span id="nbt-c">캘린더</span></button>
+    <button class="nb" id="nb-e" onclick="go('e')"><span class="nb-ico">🏃</span><span id="nbt-e">운동</span></button>
+    <button class="nb" id="nb-s" onclick="go('s')"><span class="nb-ico">⚙️</span><span id="nbt-s">설정</span></button>
+  </div>
+
+  <!-- 분석 -->
+  <div class="pg on" id="pg-a">
+    <div class="mode-row">
+      <div class="mode-btn on" id="mode-food" onclick="setMode('food')">
+        <div class="mode-ico">🍱</div>
+        <div class="mode-t" id="mt-food">음식분석</div>
+      </div>
+      <div class="mode-btn" id="mode-menu" onclick="setMode('menu')">
+        <div class="mode-ico">📋</div>
+        <div class="mode-t" id="mt-menu">메뉴판</div>
+      </div>
+      <div class="mode-btn" id="mode-barcode" onclick="setMode('barcode')">
+        <div class="mode-ico">📦</div>
+        <div class="mode-t" id="mt-barcode">포장재</div>
+      </div>
+    </div>
+
+    <div class="upload" id="uploadBox">
+      <div class="upload-ph" id="upPH">
+        <div class="uico" id="upIco">🍱</div>
+        <div class="ut" id="upT">음식 사진을 올려주세요</div>
+        <div class="us" id="upS">카메라로 바로 찍거나 갤러리에서 선택하세요</div>
+        <div class="upload-btns">
+          <button class="upload-btn upload-btn-cam" onclick="document.getElementById('fiCam').click()">
+            <span>📷</span><span id="btnCamT">카메라 촬영</span>
+          </button>
+          <button class="upload-btn upload-btn-gal" onclick="document.getElementById('fiGal').click()">
+            <span>🖼️</span><span id="btnGalT">갤러리 선택</span>
+          </button>
+        </div>
+      </div>
+      <img id="prevImg" style="display:none" alt="preview"/>
+      <div class="upload-retake" id="retakeBtns" style="display:none">
+        <button class="retake-btn" onclick="document.getElementById('fiCam').click()">
+          <span>📷</span><span id="retakeCamT">다시 찍기</span>
+        </button>
+        <button class="retake-btn" onclick="document.getElementById('fiGal').click()">
+          <span>🖼️</span><span id="retakeGalT">갤러리</span>
+        </button>
+      </div>
+    </div>
+    <input type="file" id="fiCam" accept="image/*" capture="environment" style="display:none" onchange="onFile(event)"/>
+    <input type="file" id="fiGal" accept="image/*" style="display:none" onchange="onFile(event)"/>
+
+    <button class="btn btn-green" id="analyzeBtn" onclick="doAnalyze()" disabled>
+      <span id="analyzeBtnT">AI 칼로리 분석하기</span>
+    </button>
+
+    <div class="loading" id="loading">
+      <div class="spin"></div>
+      <div class="spin-t" id="spinT">AI가 분석하고 있어요...</div>
+    </div>
+
+    <!-- 음식 결과 -->
+    <div class="result" id="resultBox">
+      <div class="res-hero">
+        <div class="res-tags" id="resTags"></div>
+        <div class="food-name" id="foodName">—</div>
+        <div class="cal-row">
+          <div class="cal-num" id="calNum">0</div>
+          <div class="cal-unit">kcal</div>
+        </div>
+        <div class="health-row">
+          <span class="health-label" id="healthLabel">건강점수</span>
+          <div class="health-dots" id="healthDots"></div>
+        </div>
+      </div>
+      <div class="macros">
+        <div class="mac"><div class="mac-v" id="mCarb">0g</div><div class="mac-l" id="lCarb">탄수화물</div></div>
+        <div class="mac"><div class="mac-v" id="mProt">0g</div><div class="mac-l" id="lProt">단백질</div></div>
+        <div class="mac"><div class="mac-v" id="mFat">0g</div><div class="mac-l" id="lFat">지방</div></div>
+        <div class="mac"><div class="mac-v" id="mSod">0</div><div class="mac-l" id="lSod">나트륨</div></div>
+      </div>
+      <div class="res-extra">
+        <div class="extra-row"><span class="extra-l" id="lFiber">식이섬유</span><span class="extra-v" id="mFiber">0g</span></div>
+        <div class="extra-row"><span class="extra-l" id="lSugar">당류</span><span class="extra-v" id="mSugar">0g</span></div>
+      </div>
+      <div class="res-detail">
+        <div class="detail-t" id="detailT">영양 정보 & 조언</div>
+        <div class="detail-body" id="detailBody">—</div>
+      </div>
+      <div class="res-actions">
+        <button class="btn btn-outline" id="saveBtn" onclick="saveLog()">기록 저장</button>
+        <button class="btn btn-outline" onclick="resetAnalyze()" id="resetBtn">다시 분석</button>
+      </div>
+    </div>
+
+    <!-- 메뉴판 결과 -->
+    <div class="menu-result" id="menuResult">
+      <div class="menu-header">
+        <div class="menu-title" id="menuTitle">메뉴판 분석 결과</div>
+        <div class="menu-sub" id="menuSub">항목을 탭해서 기록에 추가하세요</div>
+      </div>
+      <div id="menuItems"></div>
+    </div>
+  </div>
+
+  <!-- 캘린더 -->
+  <div class="pg" id="pg-c">
+    <div class="cal-wrap">
+      <div class="cal-header">
+        <div class="cal-nav">
+          <button class="cal-arrow" onclick="changeMonth(-1)">‹</button>
+          <div class="cal-month" id="calMonth">2024년 1월</div>
+          <button class="cal-arrow" onclick="changeMonth(1)">›</button>
+        </div>
+      </div>
+      <div class="cal-grid">
+        <div class="cal-days" id="calDayLabels"></div>
+        <div class="cal-cells" id="calCells"></div>
+      </div>
+    </div>
+    <div class="day-detail" id="dayDetail" style="display:none">
+      <!-- 헤더 -->
+      <div class="day-detail-header">
+        <div class="day-detail-date" id="dayDetailDate">—</div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-top:4px">
+          <div class="day-detail-cal"><span id="dayDetailCal">0</span> <span>kcal</span></div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.7)" id="dayDetailGoalText">목표 대비</div>
+        </div>
+        <!-- 진행바 -->
+        <div style="margin-top:10px;height:6px;background:rgba(255,255,255,0.2);border-radius:99px;overflow:hidden">
+          <div id="dayProgFill" style="height:100%;background:linear-gradient(90deg,#A8E6C8,#fff);border-radius:99px;transition:width 0.5s ease;width:0%"></div>
+        </div>
+        <!-- 칼로리 요약 카드 -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px">
+          <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;text-align:center">
+            <div style="font-size:18px;font-weight:800;color:#fff" id="ddFoodCal">0</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.7);margin-top:2px" id="ddFoodLabel">섭취</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;text-align:center">
+            <div style="font-size:18px;font-weight:800;color:#A8E6C8" id="ddExCal">0</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.7);margin-top:2px" id="ddExLabel">운동소모</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;text-align:center">
+            <div style="font-size:18px;font-weight:800;color:#FFD580" id="ddNetCal">0</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.7);margin-top:2px" id="ddNetLabel">순 칼로리</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 영양소 요약 -->
+      <div class="day-macros">
+        <div class="day-mac"><div class="day-mac-v" id="ddCarb">0g</div><div class="day-mac-l" id="ddlCarb">탄수화물</div></div>
+        <div class="day-mac"><div class="day-mac-v" id="ddProt">0g</div><div class="day-mac-l" id="ddlProt">단백질</div></div>
+        <div class="day-mac"><div class="day-mac-v" id="ddFat">0g</div><div class="day-mac-l" id="ddlFat">지방</div></div>
+      </div>
+
+      <!-- AI 격려 메시지 -->
+      <div id="dayEvalBox" style="display:none;padding:14px 16px;background:var(--card2);border-top:1px solid var(--border)">
+        <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:0.05em;margin-bottom:8px" id="evalTitle">오늘의 평가</div>
+        <div id="evalEmoji" style="font-size:28px;margin-bottom:6px"></div>
+        <div id="evalMsg" style="font-size:14px;color:var(--text);line-height:1.7;font-weight:500"></div>
+        <div id="evalTip" style="font-size:12px;color:var(--text2);line-height:1.6;margin-top:8px;padding:10px 12px;background:var(--card);border-radius:var(--r-xs);border-left:3px solid var(--green)"></div>
+      </div>
+
+      <!-- 영양제 추천 -->
+      <div id="suppBox" style="display:none;padding:14px 16px;background:var(--card);border-top:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+          <span style="font-size:16px">💊</span>
+          <div style="font-size:12px;font-weight:700;color:var(--text2);letter-spacing:0.04em" id="suppTitle">영양제 추천</div>
+        </div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:12px" id="suppMsg"></div>
+        <div id="suppCards" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+
+      <!-- 운동 프로그램 추천 + 위치 기반 지도 -->
+      <div id="fitBox" style="display:none;padding:14px 16px;background:var(--card2);border-top:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+          <span style="font-size:16px">🏋️</span>
+          <div style="font-size:12px;font-weight:700;color:var(--text2);letter-spacing:0.04em" id="fitTitle">운동 프로그램 추천</div>
+        </div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:12px" id="fitMsg"></div>
+
+        <!-- 위치 기반 검색 -->
+        <div id="locationSection" style="margin-bottom:12px">
+          <button id="locBtn" onclick="findNearbyGyms()" style="width:100%;padding:11px;background:var(--green);color:#fff;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);display:flex;align-items:center;justify-content:center;gap:6px">
+            <span>📍</span><span id="locBtnT">내 주변 운동시설 찾기</span>
+          </button>
+          <div id="locStatus" style="font-size:12px;color:var(--text3);text-align:center;margin-top:6px;display:none"></div>
+        </div>
+
+        <!-- 카카오 지도 -->
+        <div id="mapWrap" style="display:none;margin-bottom:12px">
+          <div id="kakaoMap" style="width:100%;height:220px;border-radius:var(--r-sm);overflow:hidden;border:1px solid var(--border)"></div>
+          <div id="gymList" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+
+        <div id="fitCards" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+
+      <!-- 기록 목록 -->
+      <div class="day-logs" id="dayLogs"></div>
+    </div>
+  </div>
+
+  <!-- 운동 -->
+  <div class="pg" id="pg-e">
+    <div class="exercise-card">
+      <div class="exercise-header">
+        <div class="exercise-title" id="exTitle">운동 칼로리 소모</div>
+        <div class="exercise-sub" id="exSub">체중 70kg 기준 · 설정에서 변경 가능</div>
+      </div>
+      <div class="exercise-grid" id="exGrid"></div>
+      <div class="ex-custom">
+        <div class="sec-title" id="exCustomTitle">직접 입력</div>
+        <div class="ex-custom-row">
+          <input class="ex-input" type="text" id="exName" placeholder="운동 이름"/>
+          <input class="ex-input" style="width:70px" type="number" id="exMin" placeholder="분"/>
+          <button class="ex-add-btn" onclick="addCustomEx()" id="exAddBtn">추가</button>
+        </div>
+      </div>
+    </div>
+    <div class="sec-title" id="exLogTitle">오늘 운동 기록</div>
+    <div id="exLogList"></div>
+  </div>
+
+  <!-- 설정 -->
+  <div class="pg" id="pg-s">
+    <div class="set-card">
+      <div class="set-row">
+        <div><div class="set-l" id="sGL">일일 칼로리 목표</div><div class="set-s" id="sGS">권장: 남성 2500 / 여성 2000 kcal</div></div>
+        <input class="goal-in" type="number" id="goalIn" value="2000" min="500" max="5000" onchange="saveGoal()"/>
+      </div>
+      <div class="set-row">
+        <div><div class="set-l" id="sWL">체중(kg)</div><div class="set-s" id="sWS">입력 시 칼로리 목표 자동 계산</div></div>
+        <input class="goal-in" type="number" id="weightIn" value="70" min="30" max="200" onchange="saveWeight()" style="width:70px"/>
+      </div>
+      <div class="set-row">
+        <div><div class="set-l" id="sGenderL">성별</div><div class="set-s" id="sGenderS">칼로리 목표 자동 계산에 사용</div></div>
+        <div style="display:flex;gap:6px">
+          <button id="btnMale" onclick="setGender('male')" style="padding:6px 14px;border-radius:99px;border:1.5px solid var(--green);background:var(--green);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">남성</button>
+          <button id="btnFemale" onclick="setGender('female')" style="padding:6px 14px;border-radius:99px;border:1.5px solid var(--border);background:var(--bg);color:var(--text2);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">여성</button>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-l" id="sLL">언어</div>
+        <div class="set-v" id="sLV">한국어</div>
+      </div>
+      <div class="set-row">
+        <div class="set-l">버전</div>
+        <div class="set-v">v2.0.0</div>
+      </div>
+      <div class="set-row">
+        <div class="set-l" id="sDevL">개발</div>
+        <div class="set-v">Gony</div>
+      </div>
+    </div>
+    <button class="btn btn-danger" onclick="clearLogs()" id="delBtn">기록 전체 삭제</button>
+  </div>
+
+</div>
+
+<!-- PWA 설치 배너 -->
+<div class="pwa-banner" id="pwaBanner" style="display:none">
+  <div class="pwa-banner-ico">🥗</div>
+  <div class="pwa-banner-info">
+    <div class="pwa-banner-title" id="pwaBannerTitle">홈화면에 추가하기</div>
+    <div class="pwa-banner-sub" id="pwaBannerSub">앱처럼 바로 실행할 수 있어요!</div>
+  </div>
+  <button class="pwa-banner-btn" id="pwaBannerBtn" onclick="installPWA()">추가</button>
+  <button class="pwa-banner-close" onclick="closePWABanner()">×</button>
+</div>
+
+<!-- Auth Modal -->
+<div class="auth-overlay" id="authOverlay" style="display:none">
+  <div class="auth-modal">
+    <div class="auth-logo">Calorie<span>Check</span></div>
+    <div class="auth-sub" id="authSubT">기기를 바꿔도 데이터가 유지돼요.<br>간편하게 가입하고 시작해보세요!</div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab on" id="tabLogin" onclick="switchTab('login')">로그인</button>
+      <button class="auth-tab" id="tabSignup" onclick="switchTab('signup')">회원가입</button>
+    </div>
+
+    <!-- 구글 로그인 -->
+    <button class="auth-btn auth-btn-google" onclick="doGoogleLogin()">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.96 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      <span id="googleBtnT">Google로 계속하기</span>
+    </button>
+
+    <div class="auth-divider"><span id="authOrT">또는</span></div>
+
+    <!-- 이메일 로그인 -->
+    <div id="loginForm">
+      <input class="auth-input" type="email" id="loginEmail" placeholder="이메일"/>
+      <input class="auth-input" type="password" id="loginPw" placeholder="비밀번호"/>
+      <div class="auth-error" id="loginError"></div>
+      <button class="auth-btn auth-btn-green" onclick="doEmailLogin()" id="loginBtnT">이메일로 로그인</button>
+    </div>
+
+    <!-- 이메일 회원가입 -->
+    <div id="signupForm" style="display:none">
+      <input class="auth-input" type="text" id="signupNick" placeholder="닉네임 (앱에서 표시되는 이름)"/>
+      <input class="auth-input" type="email" id="signupEmail" placeholder="이메일"/>
+      <input class="auth-input" type="password" id="signupPw" placeholder="비밀번호 (6자 이상)"/>
+      <div class="auth-error" id="signupError"></div>
+      <button class="auth-btn auth-btn-green" onclick="doEmailSignup()" id="signupBtnT">회원가입</button>
+    </div>
+
+    <button onclick="closeAuthModal()" style="width:100%;padding:8px;background:none;border:none;color:var(--text3);font-size:13px;cursor:pointer;font-family:var(--font)" id="skipBtnT">나중에 하기</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let lang='ko', mode='food', imgB64=null, imgType='image/jpeg', curResult=null;
+let gender='male';
+let logs=[], goal=2000, weight=70;
+let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
+let selectedDate=null, exLogs=[];
+
+const EXERCISES = [
+  {ico:'🚶',name:{ko:'걷기',en:'Walking'},met:3.5},
+  {ico:'🏃',name:{ko:'달리기',en:'Running'},met:9.0},
+  {ico:'🚴',name:{ko:'자전거',en:'Cycling'},met:7.0},
+  {ico:'🏊',name:{ko:'수영',en:'Swimming'},met:8.0},
+  {ico:'💪',name:{ko:'헬스',en:'Gym'},met:5.0},
+  {ico:'🧘',name:{ko:'요가',en:'Yoga'},met:3.0},
+  {ico:'⚽',name:{ko:'축구',en:'Soccer'},met:8.0},
+  {ico:'🏸',name:{ko:'배드민턴',en:'Badminton'},met:6.0},
+  {ico:'🥊',name:{ko:'복싱',en:'Boxing'},met:9.5},
+  {ico:'🧗',name:{ko:'등산',en:'Hiking'},met:6.5},
+];
+
+const T={
+  ko:{nb:['분석','캘린더','운동','설정'],upT:'음식 사진을 올려주세요',upS:'탭해서 사진 선택하기',
+    mt:['음식분석','메뉴판','포장재'],analyzeBtn:'AI 칼로리 분석하기',spinT:'AI가 분석하고 있어요...',
+    carb:'탄수화물',prot:'단백질',fat:'지방',sod:'나트륨mg',fiber:'식이섬유',sugar:'당류',
+    detailT:'영양 정보 & 조언',saveBtn:'기록 저장',resetBtn:'다시 분석',
+    healthLabel:'건강점수',saved:'저장됐어요!',
+    menuTitle:'메뉴판 분석 결과',menuSub:'항목을 탭해서 기록에 추가하세요',
+    exTitle:'운동 칼로리 소모',exSub:(w)=>`체중 ${w}kg 기준 · 설정에서 변경 가능`,
+    exCustomTitle:'직접 입력',exAddBtn:'추가',exLogTitle:'오늘 운동 기록',
+    exNamePh:'운동 이름',exMinPh:'분',
+    sGL:'일일 칼로리 목표',sGS:'권장: 남성 2500 / 여성 2000 kcal',
+    sWL:'체중(kg)',sWS:'운동 칼로리 소모 계산에 사용',
+    sLL:'언어',sLV:'한국어',delBtn:'기록 전체 삭제',langBtn:'English',
+    delConfirm:'모든 기록을 삭제할까요?',noImg:'사진을 먼저 선택해주세요',
+    errMsg:'분석 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.',
+    dayLabels:['일','월','화','수','목','금','토'],
+    noLogs:'기록이 없어요',exNoLogs:'오늘 운동 기록이 없어요',
+    menuAddToast:(n)=>`${n} 기록에 추가됐어요!`,
+    exAddToast:(n,c)=>`${n} ${c}kcal 소모!`,
+    hdrProgGoal:(g)=>`목표 ${g.toLocaleString()}kcal`,
+    upIcos:{food:'🍱',menu:'📋',barcode:'📦'},
+    upTexts:{food:'음식 사진을 올려주세요',menu:'메뉴판을 촬영해주세요',barcode:'포장재 영양성분표를 찍어주세요'},
+    analyzeBtns:{food:'AI 칼로리 분석하기',menu:'메뉴판 분석하기',barcode:'영양성분 분석하기'},
+    prompt:`이 음식 사진을 분석해서 JSON만 반환해줘:
+{"name":"음식이름","calories":숫자,"carbs":숫자,"protein":숫자,"fat":숫자,"sodium":숫자,"fiber":숫자,"sugar":숫자,"detail":"영양 정보와 건강 조언 2~3문장","healthScore":숫자,"tags":["태그"]}
+healthScore 1~10. tags: [고단백,저칼로리,고탄수화물,고지방,균형잡힘,채식,한식,양식,중식,일식,간식,식사] 중 해당하는 것. 숫자는 정수.`
+  },
+  en:{nb:['Analyze','Calendar','Exercise','Settings'],upT:'Upload a food photo',upS:'Tap to select',
+    mt:['Food','Menu','Package'],analyzeBtn:'Analyze with AI',spinT:'AI is analyzing...',
+    carb:'Carbs',prot:'Protein',fat:'Fat',sod:'Sodium mg',fiber:'Fiber',sugar:'Sugar',
+    detailT:'Nutrition & Tips',saveBtn:'Save',resetBtn:'New Photo',
+    healthLabel:'Health Score',saved:'Saved!',
+    menuTitle:'Menu Analysis',menuSub:'Tap item to add to log',
+    exTitle:'Exercise Calories',exSub:(w)=>`Based on ${w}kg · Change in settings`,
+    exCustomTitle:'Custom Input',exAddBtn:'Add',exLogTitle:"Today's Exercise",
+    exNamePh:'Exercise name',exMinPh:'Min',
+    sGL:'Daily Calorie Goal',sGS:'Recommended: Men 2500 / Women 2000',
+    sWL:'Weight (kg)',sWS:'Used for exercise calorie calculation',
+    sLL:'Language',sLV:'English',delBtn:'Delete All Records',langBtn:'한국어',
+    delConfirm:'Delete all records?',noImg:'Please select a photo first',
+    errMsg:'Analysis failed. Please try again.',
+    dayLabels:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+    noLogs:'No records',exNoLogs:'No exercise records today',
+    menuAddToast:(n)=>`${n} added!`,
+    exAddToast:(n,c)=>`${n}: ${c} kcal burned!`,
+    hdrProgGoal:(g)=>`Goal: ${g.toLocaleString()} kcal`,
+    upIcos:{food:'🍱',menu:'📋',barcode:'📦'},
+    upTexts:{food:'Upload a food photo',menu:'Photograph a menu',barcode:'Photograph nutrition label'},
+    analyzeBtns:{food:'Analyze with AI',menu:'Analyze Menu',barcode:'Analyze Nutrition'},
+    prompt:`Analyze this food image and return ONLY JSON:
+{"name":"food name","calories":number,"carbs":number,"protein":number,"fat":number,"sodium":number,"fiber":number,"sugar":number,"detail":"2-3 sentences about nutrition and health tips","healthScore":number,"tags":["tag"]}
+healthScore 1-10. tags from: [high-protein,low-cal,high-carb,high-fat,balanced,vegetarian,korean,western,chinese,japanese,snack,meal]. Numbers as integers.`
+  }
+};
+
+function t(k,...a){const v=T[lang][k];return typeof v==='function'?v(...a):v;}
+
+function applyLang(){
+  const nb=t('nb');
+  ['a','c','e','s'].forEach((x,i)=>document.getElementById('nbt-'+x).textContent=nb[i]);
+  document.getElementById('langBtn').textContent=t('langBtn');
+  ['food','menu','barcode'].forEach((m,i)=>document.getElementById('mt-'+m).textContent=t('mt')[i]);
+  document.getElementById('upT').textContent=t(mode==='food'?'upT':'upT');
+  document.getElementById('analyzeBtnT').textContent=t('analyzeBtn');
+  document.getElementById('spinT').textContent=t('spinT');
+  document.getElementById('lCarb').textContent=t('carb');
+  document.getElementById('lProt').textContent=t('prot');
+  document.getElementById('lFat').textContent=t('fat');
+  document.getElementById('lSod').textContent=t('sod');
+  document.getElementById('lFiber').textContent=t('fiber');
+  document.getElementById('lSugar').textContent=t('sugar');
+  document.getElementById('detailT').textContent=t('detailT');
+  document.getElementById('saveBtn').textContent=t('saveBtn');
+  document.getElementById('resetBtn').textContent=t('resetBtn');
+  document.getElementById('healthLabel').textContent=t('healthLabel');
+  document.getElementById('menuTitle').textContent=t('menuTitle');
+  document.getElementById('menuSub').textContent=t('menuSub');
+  document.getElementById('exTitle').textContent=t('exTitle');
+  document.getElementById('exSub').textContent=t('exSub',weight);
+  document.getElementById('exCustomTitle').textContent=t('exCustomTitle');
+  document.getElementById('exAddBtn').textContent=t('exAddBtn');
+  document.getElementById('exLogTitle').textContent=t('exLogTitle');
+  document.getElementById('exName').placeholder=t('exNamePh');
+  document.getElementById('exMin').placeholder=t('exMinPh');
+  document.getElementById('sGL').textContent=t('sGL');
+  document.getElementById('sGS').textContent=t('sGS');
+  document.getElementById('sWL').textContent=t('sWL');
+  document.getElementById('sWS').textContent=t('sWS');
+  document.getElementById('sLL').textContent=t('sLL');
+  document.getElementById('sLV').textContent=t('sLV');
+  if(document.getElementById('sGenderL')){
+    document.getElementById('sGenderL').textContent=lang==='ko'?'성별':'Gender';
+    document.getElementById('sGenderS').textContent=lang==='ko'?'칼로리 목표 자동 계산에 사용':'Used for calorie goal calculation';
+    document.getElementById('btnMale').textContent=lang==='ko'?'남성':'Male';
+    document.getElementById('btnFemale').textContent=lang==='ko'?'여성':'Female';
+  }
+  if(document.getElementById('sDevL'))
+    document.getElementById('sDevL').textContent=lang==='ko'?'개발':'Developer';
+  document.getElementById('delBtn').textContent=t('delBtn');
+  document.getElementById('ddlCarb').textContent=t('carb');
+  document.getElementById('ddlProt').textContent=t('prot');
+  document.getElementById('ddlFat').textContent=t('fat');
+  setMode(mode);
+  renderExGrid();
+  renderCalendar();
+  renderExLogs();
+  updateHeader();
+}
+
+function toggleLang(){lang=lang==='ko'?'en':'ko';localStorage.setItem('cc_lang',lang);applyLang();}
+
+function go(name){
+  currentPage=name;
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pg-'+name).classList.add('on');
+  document.getElementById('nb-'+name).classList.add('on');
+  if(name==='c'){renderCalendar();if(selectedDate)showDayDetail(selectedDate);}
+  if(name==='e'){renderExLogs();}
+  history.pushState({page:name},'');
+}
+
+function setMode(m){
+  mode=m;
+  ['food','menu','barcode'].forEach(x=>{
+    document.getElementById('mode-'+x).classList.toggle('on',x===m);
+  });
+  document.getElementById('upIco').textContent=t('upIcos')[m];
+  document.getElementById('upT').textContent=t('upTexts')[m];
+  document.getElementById('analyzeBtnT').textContent=t('analyzeBtns')[m];
+}
+
+function onFile(e){
+  const f=e.target.files[0];if(!f)return;
+  imgType=f.type||'image/jpeg';
+  const r=new FileReader();
+  r.onload=ev=>{
+    imgB64=ev.target.result.split(',')[1];
+    const img=document.getElementById('prevImg');
+    img.src=ev.target.result;img.style.display='block';
+    document.getElementById('upPH').style.display='none';
+    document.getElementById('retakeBtns').style.display='flex';
+    document.getElementById('uploadBox').classList.add('filled');
+    document.getElementById('analyzeBtn').disabled=false;
+    document.getElementById('resultBox').classList.remove('on');
+    document.getElementById('menuResult').classList.remove('on');
+    curResult=null;
+  };
+  r.readAsDataURL(f);
+}
+
+async function doAnalyze(){
+  if(!imgB64){showToast(t('noImg'));return;}
+  document.getElementById('loading').classList.add('on');
+  document.getElementById('resultBox').classList.remove('on');
+  document.getElementById('menuResult').classList.remove('on');
+  document.getElementById('analyzeBtn').disabled=true;
+  try{
+    const res=await fetch('/api/analyze',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({imageBase64:imgB64,mediaType:imgType,lang,mode:mode==='menu'?'menu':'food'})
+    });
+    const data=await res.json();
+    if(!res.ok||data.error)throw new Error(data.error||'error');
+    if(mode==='menu'){renderMenuResult(data);}
+    else{renderFoodResult(data);}
+  }catch(err){showToast(t('errMsg'));}
+  finally{
+    document.getElementById('loading').classList.remove('on');
+    document.getElementById('analyzeBtn').disabled=false;
+  }
+}
+
+function renderFoodResult(data){
+  curResult={...data,img:imgB64,time:new Date().toISOString()};
+  document.getElementById('foodName').textContent=data.name;
+  document.getElementById('calNum').textContent=data.calories.toLocaleString();
+  document.getElementById('mCarb').textContent=data.carbs+'g';
+  document.getElementById('mProt').textContent=data.protein+'g';
+  document.getElementById('mFat').textContent=data.fat+'g';
+  document.getElementById('mSod').textContent=data.sodium;
+  document.getElementById('mFiber').textContent=(data.fiber||0)+'g';
+  document.getElementById('mSugar').textContent=(data.sugar||0)+'g';
+  document.getElementById('detailBody').textContent=data.detail;
+  const tags=document.getElementById('resTags');
+  tags.innerHTML=(data.tags||[]).map(tag=>`<span class="tag">${tag}</span>`).join('');
+  const dots=document.getElementById('healthDots');
+  const score=data.healthScore||5;
+  dots.innerHTML=Array.from({length:10},(_,i)=>`<div class="health-dot${i<score?' on':''}"></div>`).join('');
+  document.getElementById('saveBtn').textContent=t('saveBtn');
+  document.getElementById('resultBox').classList.add('on');
+}
+
+function renderMenuResult(data){
+  const items=data.items||[];
+  document.getElementById('menuItems').innerHTML=items.map((item,i)=>`
+    <div class="menu-item" onclick="addMenuItemToLog(${i})" style="cursor:pointer" data-item='${JSON.stringify(item)}'>
+      <div>
+        <div class="menu-item-name">${item.name}</div>
+        <div class="menu-item-mac">${t('carb')} ${item.carbs}g · ${t('prot')} ${item.protein}g · ${t('fat')} ${item.fat}g${item.price?` · ${item.price}`:''}</div>
+      </div>
+      <div class="menu-item-cal">${item.calories.toLocaleString()}<span>kcal</span></div>
+    </div>`).join('');
+  document.getElementById('menuResult').classList.add('on');
+}
+
+function addMenuItemToLog(idx){
+  const el=document.getElementById('menuItems').children[idx];
+  const item=JSON.parse(el.dataset.item);
+  const log={...item,sodium:item.sodium||0,fiber:item.fiber||0,sugar:item.sugar||0,
+    healthScore:5,tags:[],detail:'',img:imgB64,time:new Date().toISOString()};
+  logs.unshift(log);saveLogs();updateHeader();
+  showToast(t('menuAddToast',item.name));
+}
+
+function saveLog(){
+  if(!curResult)return;
+  logs.unshift(curResult);saveLogs();updateHeader();
+  document.getElementById('saveBtn').textContent=t('saved');
+  setTimeout(()=>document.getElementById('saveBtn').textContent=t('saveBtn'),1500);
+}
+
+function resetAnalyze(){
+  imgB64=null;curResult=null;
+  document.getElementById('prevImg').style.display='none';
+  document.getElementById('upPH').style.display='block';
+  document.getElementById('retakeBtns').style.display='none';
+  document.getElementById('uploadBox').classList.remove('filled');
+  document.getElementById('analyzeBtn').disabled=true;
+  document.getElementById('resultBox').classList.remove('on');
+  document.getElementById('menuResult').classList.remove('on');
+  document.getElementById('fiCam').value='';
+  document.getElementById('fiGal').value='';
+}
+
+function saveLogs(){localStorage.setItem('cc_logs',JSON.stringify(logs));}
+
+function updateHeader(){
+  goal=parseInt(document.getElementById('goalIn').value)||2000;
+  const today=new Date().toDateString();
+  const todayFood=logs.filter(l=>new Date(l.time).toDateString()===today&&!l.isExercise);
+  const todayEx=exLogs.filter(l=>new Date(l.time).toDateString()===today);
+  const foodCal=todayFood.reduce((s,l)=>s+l.calories,0);
+  const exCal=todayEx.reduce((s,l)=>s+l.calories,0);
+  const net=foodCal-exCal;
+  const pct=Math.min(100,Math.round(net/goal*100));
+  document.getElementById('hdrCal').textContent=net.toLocaleString();
+  document.getElementById('hdrProgFill').style.width=pct+'%';
+  document.getElementById('hdrProgPct').textContent=pct+'%';
+  document.getElementById('hdrProgGoal').textContent=t('hdrProgGoal',goal);
+  const now=new Date();
+  document.getElementById('hdrDate').textContent=lang==='ko'
+    ?`${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일`
+    :now.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+}
+
+/* Calendar */
+function renderCalendar(){
+  const dayLabels=t('dayLabels');
+  document.getElementById('calDayLabels').innerHTML=dayLabels.map(d=>`<div class="cal-day-label">${d}</div>`).join('');
+  const y=calYear,m=calMonth;
+  document.getElementById('calMonth').textContent=lang==='ko'?`${y}년 ${m+1}월`:new Date(y,m).toLocaleDateString('en-US',{year:'numeric',month:'long'});
+  const first=new Date(y,m,1).getDay();
+  const daysInMonth=new Date(y,m+1,0).getDate();
+  const today=new Date();
+  let cells='';
+  for(let i=0;i<first;i++)cells+=`<div class="cal-cell other-month"></div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const date=new Date(y,m,d);
+    const ds=date.toDateString();
+    const dayLogs=logs.filter(l=>new Date(l.time).toDateString()===ds&&!l.isExercise);
+    const dayCal=dayLogs.reduce((s,l)=>s+l.calories,0);
+    const isToday=date.toDateString()===today.toDateString();
+    const isSelected=selectedDate&&date.toDateString()===selectedDate.toDateString();
+    const hasData=dayLogs.length>0;
+    let cls='cal-cell';
+    if(isToday)cls+=' today';
+    if(hasData)cls+=' has-data';
+    if(isSelected)cls+=' selected';
+    cells+=`<div class="${cls}" onclick="selectDate(new Date(${y},${m},${d}))">
+      <div class="cal-num">${d}</div>
+      ${hasData?`<div class="cal-dot"></div>`:''}
+      ${hasData&&!isSelected?`<div style="font-size:8px;color:var(--green-d);font-weight:700;margin-top:1px">${dayCal>0?dayCal+'':''}</div>`:''}
+    </div>`;
+  }
+  document.getElementById('calCells').innerHTML=cells;
+}
+
+function changeMonth(dir){
+  calMonth+=dir;
+  if(calMonth>11){calMonth=0;calYear++;}
+  if(calMonth<0){calMonth=11;calYear--;}
+  renderCalendar();
+}
+
+function selectDate(date){
+  selectedDate=date;
+  renderCalendar();
+  showDayDetail(date);
+}
+
+function getDayEval(netCal, foodCal, exCal, goal, hasData){
+  const ko = lang === 'ko';
+  if(!hasData) return null;
+  const ratio = netCal / goal;
+  const hasExercise = exCal > 0;
+
+  let emoji, msg, tip;
+
+  if(ratio <= 0.7){
+    emoji = '🌟';
+    msg = ko ? '와, 오늘 정말 완벽한 하루였어요! 목표 칼로리를 멋지게 지켜냈네요. 이런 날이 쌓이면 분명 좋은 변화가 찾아올 거예요. 스스로가 자랑스럽지 않나요? 😊'
+              : "Wow, what a perfect day! You stayed well within your calorie goal. Keep it up — changes are coming your way! 😊";
+    tip = ko ? `💡 섭취 ${foodCal.toLocaleString()}kcal${hasExercise?` · 운동으로 ${exCal.toLocaleString()}kcal 소모`:''} · 목표 대비 ${Math.round(ratio*100)}% 달성`
+             : `💡 Intake: ${foodCal.toLocaleString()} kcal${hasExercise?` · Burned: ${exCal.toLocaleString()} kcal`:''} · ${Math.round(ratio*100)}% of goal`;
+  } else if(ratio <= 0.9){
+    emoji = '😊';
+    msg = ko ? '오늘 정말 잘 하셨어요! 목표에 거의 다 왔고, 균형 잡힌 하루를 보내셨네요. 내일도 오늘처럼만 하면 충분해요!'
+              : "Great job today! You're very close to your goal. A balanced day like this makes all the difference!";
+    tip = ko ? `💡 목표까지 ${(goal-netCal).toLocaleString()}kcal 남았어요. 아주 훌륭한 조절이에요!`
+             : `💡 Just ${(goal-netCal).toLocaleString()} kcal under your goal. Excellent control!`;
+  } else if(ratio <= 1.0){
+    emoji = '✅';
+    msg = ko ? '딱 좋아요! 오늘 목표 칼로리를 정확하게 맞추셨네요. 이런 균형 잡힌 식습관이 건강의 비결이에요. 오늘 하루도 수고하셨어요!'
+              : "Right on target! You hit your calorie goal perfectly today. This kind of balance is the key to health!";
+    tip = ko ? `💡 오늘 순 칼로리: ${netCal.toLocaleString()}kcal · 목표: ${goal.toLocaleString()}kcal · 완벽한 균형!`
+             : `💡 Net calories: ${netCal.toLocaleString()} kcal · Goal: ${goal.toLocaleString()} kcal · Perfect balance!`;
+  } else if(ratio <= 1.15){
+    emoji = '😅';
+    msg = ko ? '오늘 조금 초과했지만 괜찮아요! 누구나 그런 날이 있거든요. 내일 가벼운 운동 한 번으로 충분히 만회할 수 있어요. 포기하지 마세요!'
+              : "A little over today, but that's okay! Everyone has those days. A light workout tomorrow will easily balance things out!";
+    tip = ko ? `💡 목표보다 ${(netCal-goal).toLocaleString()}kcal 초과했어요. 내일 30분 걷기로 돌아올 수 있어요!`
+             : `💡 ${(netCal-goal).toLocaleString()} kcal over goal. A 30-min walk tomorrow will get you back on track!`;
+  } else if(ratio <= 1.3){
+    emoji = '💪';
+    msg = ko ? '오늘은 좀 많이 먹었지만, 이미 기록하고 있다는 것 자체가 대단해요! 인식이 변화의 첫 걸음이에요. 내일은 운동을 좀 더 해보는 건 어떨까요?'
+              : "You ate a bit more today, but the fact that you're tracking shows real commitment! Awareness is the first step to change.";
+    tip = ko ? `💡 오늘 ${(netCal-goal).toLocaleString()}kcal 초과. 내일 운동으로 조금씩 균형을 맞춰봐요!`
+             : `💡 ${(netCal-goal).toLocaleString()} kcal over today. Try adding some exercise tomorrow!`;
+  } else {
+    emoji = '🍀';
+    msg = ko ? '오늘은 좀 특별한 날이었나봐요? 맛있는 걸 즐기는 것도 삶의 행복이에요! 너무 자책하지 말고, 내일부터 다시 시작하면 돼요. 할 수 있어요! 😄'
+              : "Looks like today was a special occasion! Enjoying good food is part of life. Don't be too hard on yourself — just start fresh tomorrow!";
+    tip = hasExercise
+      ? (ko?`💡 운동으로 ${exCal.toLocaleString()}kcal 소모한 것도 잊지 마세요. 그것만으로도 대단해요!`:`💡 Don't forget you burned ${exCal.toLocaleString()} kcal with exercise. That counts!`)
+      : (ko?`💡 내일 산책 30분으로 시작해봐요. 작은 것부터!`:`💡 Start tomorrow with a 30-min walk. Small steps count!`);
+  }
+  return {emoji, msg, tip};
+}
+
+function showDayDetail(date){
+  const ds=date.toDateString();
+  const dayLogs=logs.filter(l=>new Date(l.time).toDateString()===ds);
+  const dayExLogs=exLogs.filter(l=>new Date(l.time).toDateString()===ds);
+  const foodCal=dayLogs.reduce((s,l)=>s+l.calories,0);
+  const exCal=dayExLogs.reduce((s,l)=>s+l.calories,0);
+  const netCal=foodCal-exCal;
+  const totalCarb=dayLogs.reduce((s,l)=>s+(l.carbs||0),0);
+  const totalProt=dayLogs.reduce((s,l)=>s+(l.protein||0),0);
+  const totalFat=dayLogs.reduce((s,l)=>s+(l.fat||0),0);
+  const ko=lang==='ko';
+
+  // 날짜 표시
+  document.getElementById('dayDetailDate').textContent=ko
+    ?`${date.getFullYear()}년 ${date.getMonth()+1}월 ${date.getDate()}일`
+    :date.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+
+  // 순칼로리
+  document.getElementById('dayDetailCal').textContent=netCal.toLocaleString();
+  const pct=Math.min(130,Math.round(netCal/goal*100));
+  document.getElementById('dayProgFill').style.width=pct+'%';
+  document.getElementById('dayProgFill').style.background=pct>100?'linear-gradient(90deg,#FFB347,#FF6B35)':'linear-gradient(90deg,#A8E6C8,#fff)';
+  document.getElementById('dayDetailGoalText').textContent=ko?`목표 ${goal.toLocaleString()}kcal 중 ${pct}%`:`${pct}% of ${goal.toLocaleString()} kcal goal`;
+
+  // 칼로리 3분할
+  document.getElementById('ddFoodCal').textContent=foodCal.toLocaleString();
+  document.getElementById('ddExCal').textContent=exCal>0?'-'+exCal.toLocaleString():'0';
+  document.getElementById('ddNetCal').textContent=netCal.toLocaleString();
+  document.getElementById('ddFoodLabel').textContent=ko?'섭취':'Intake';
+  document.getElementById('ddExLabel').textContent=ko?'운동소모':'Burned';
+  document.getElementById('ddNetLabel').textContent=ko?'순 칼로리':'Net Cal';
+
+  // 영양소
+  document.getElementById('ddCarb').textContent=totalCarb+'g';
+  document.getElementById('ddProt').textContent=totalProt+'g';
+  document.getElementById('ddFat').textContent=totalFat+'g';
+
+  // 평가 메시지
+  const hasData=dayLogs.length>0||dayExLogs.length>0;
+  const evalBox=document.getElementById('dayEvalBox');
+  if(hasData){
+    const ev=getDayEval(netCal,foodCal,exCal,goal,hasData);
+    if(ev){
+      document.getElementById('evalTitle').textContent=ko?'오늘의 평가':'Daily Report';
+      document.getElementById('evalEmoji').textContent=ev.emoji;
+      document.getElementById('evalMsg').textContent=ev.msg;
+      document.getElementById('evalTip').textContent=ev.tip;
+      evalBox.style.display='block';
+    }
+  } else {
+    evalBox.style.display='none';
+  }
+  const logEl=document.getElementById('dayLogs');
+  let html='';
+  if(dayLogs.length){
+    html+=`<div style="padding:10px 16px 4px;font-size:11px;font-weight:700;color:var(--text3);letter-spacing:0.05em">${lang==='ko'?'🍱 식사 기록':'🍱 FOOD LOG'}</div>`;
+    html+=dayLogs.map((l,i)=>{
+      const d=new Date(l.time);
+      const ts=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      const globalIdx=logs.indexOf(l);
+      return `<div class="day-log-item">
+        <img class="day-log-thumb" src="data:image/jpeg;base64,${l.img}" alt="${l.name}"/>
+        <div style="flex:1;min-width:0">
+          <div class="day-log-name">${l.name}</div>
+          <div class="day-log-cal">${l.calories.toLocaleString()} <span>kcal</span></div>
+          <div class="day-log-mac">${t('carb')} ${l.carbs||0}g · ${t('prot')} ${l.protein||0}g · ${t('fat')} ${l.fat||0}g</div>
+          <div class="day-log-time">${ts}</div>
+        </div>
+        <button onclick="deleteFoodLog(${globalIdx},event)" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text3);padding:4px 8px;border-radius:8px;flex-shrink:0" title="삭제">🗑️</button>
+      </div>`;
+    }).join('');
+  }
+  if(dayExLogs.length){
+    html+=`<div style="padding:10px 16px 4px;font-size:11px;font-weight:700;color:var(--text3);letter-spacing:0.05em">${lang==='ko'?'🏃 운동 기록':'🏃 EXERCISE LOG'}</div>`;
+    html+=dayExLogs.map((l,i)=>{
+      const d=new Date(l.time);
+      const ts=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      const globalIdx=exLogs.indexOf(l);
+      return `<div class="day-log-item">
+        <div style="width:48px;height:48px;border-radius:10px;background:var(--accent-l);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${l.ico}</div>
+        <div style="flex:1">
+          <div class="day-log-name">${l.name}</div>
+          <div class="day-log-cal" style="color:var(--accent)">-${l.calories.toLocaleString()} <span>kcal</span></div>
+          <div class="day-log-mac">${l.minutes}${lang==='ko'?'분':'min'}</div>
+          <div class="day-log-time">${ts}</div>
+        </div>
+        <button onclick="deleteExLog(${globalIdx},event)" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text3);padding:4px 8px;border-radius:8px;flex-shrink:0" title="삭제">🗑️</button>
+      </div>`;
+    }).join('');
+  }
+  if(!dayLogs.length&&!dayExLogs.length){
+    html=`<div class="day-empty">${t('noLogs')}</div>`;
+  }
+  logEl.innerHTML=html;
+
+  // 영양제 & 운동 추천
+  const avgProt = dayLogs.length ? Math.round(totalProt/dayLogs.length) : 0;
+  const avgFiber = dayLogs.length ? Math.round(dayLogs.reduce((s,l)=>s+(l.fiber||0),0)/dayLogs.length) : 0;
+  const avgFat = dayLogs.length ? Math.round(totalFat/dayLogs.length) : 0;
+  if(dayLogs.length > 0){
+    showSupplements(avgProt, 0, avgFat, avgFiber, 0, ko);
+  } else {
+    document.getElementById('suppBox').style.display='none';
+  }
+  showFitnessRec(exCal, dayExLogs.length, ko);
+
+  document.getElementById('dayDetail').style.display='block';
+}
+
+/* Exercise */
+function calcExCal(met,min){
+  const genderFactor = gender === 'female' ? 0.87 : 1.0;
+  return Math.round(met * weight * (min/60) * genderFactor);
+}
+
+let selectedEx=null;
+
+function renderExGrid(){
+  document.getElementById('exGrid').innerHTML=EXERCISES.map((ex,i)=>{
+    const cal30=calcExCal(ex.met,30);
+    const isSelected=selectedEx&&selectedEx.idx===i;
+    return `<div class="ex-item${isSelected?' ex-selected':''}" onclick="selectExercise(${i})">
+      <div class="ex-ico">${ex.ico}</div>
+      <div class="ex-info">
+        <div class="ex-name">${ex.name[lang]||ex.name.ko}</div>
+        <div class="ex-cal">${cal30} kcal/30${lang==='ko'?'분':'min'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectExercise(idx){
+  const ex=EXERCISES[idx];
+  selectedEx={idx,...ex};
+  renderExGrid();
+  const nameEl=document.getElementById('exName');
+  const minEl=document.getElementById('exMin');
+  nameEl.value=ex.name[lang]||ex.name.ko;
+  minEl.value='30';
+  minEl.focus();
+  document.getElementById('exCustomTitle').textContent=lang==='ko'?`${ex.ico} ${ex.name.ko} - 운동 시간 입력`:`${ex.ico} ${ex.name.en} - Enter Duration`;
+}
+
+function logExercise(idx){
+  selectExercise(idx);
+}
+
+function addCustomEx(){
+  const name=document.getElementById('exName').value.trim();
+  const min=parseInt(document.getElementById('exMin').value)||0;
+  if(!name||min<=0)return;
+  const met=selectedEx?selectedEx.met:5;
+  const ico=selectedEx?selectedEx.ico:'🏋️';
+  const cal=calcExCal(met,min);
+  const log={ico,name,minutes:min,calories:cal,time:new Date().toISOString()};
+  exLogs.unshift(log);saveExLogs();updateHeader();renderExLogs();
+  document.getElementById('exName').value='';
+  document.getElementById('exMin').value='';
+  selectedEx=null;
+  renderExGrid();
+  document.getElementById('exCustomTitle').textContent=t('exCustomTitle');
+  showToast(t('exAddToast',name,cal));
+}
+
+function renderExLogs(){
+  const today=new Date().toDateString();
+  const todayEx=exLogs.filter(l=>new Date(l.time).toDateString()===today);
+  const el=document.getElementById('exLogList');
+  if(!todayEx.length){
+    el.innerHTML=`<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">${t('exNoLogs')}</div>`;
+    return;
+  }
+  el.innerHTML=todayEx.map((l)=>{
+    const d=new Date(l.time);
+    const ts=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    const globalIdx=exLogs.indexOf(l);
+    return `<div class="ex-log-item">
+      <div class="ex-log-left">
+        <div class="ex-log-ico">${l.ico}</div>
+        <div><div class="ex-log-name">${l.name}</div><div class="ex-log-time">${l.minutes}${lang==='ko'?'분':'min'} · ${ts}</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="ex-log-cal">-${l.calories} <span>kcal</span></div>
+        <button onclick="editExLog(${globalIdx})" style="background:var(--blue-l);border:none;color:var(--blue);font-size:12px;font-weight:700;padding:5px 10px;border-radius:8px;cursor:pointer;font-family:var(--font)">${lang==='ko'?'수정':'Edit'}</button>
+        <button onclick="deleteExLog(${globalIdx})" style="background:#FFF0EB;border:none;color:var(--accent);font-size:18px;padding:4px 8px;border-radius:8px;cursor:pointer">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function saveExLogs(){localStorage.setItem('cc_exlogs',JSON.stringify(exLogs));}
+
+function saveGoal(){
+  goal=parseInt(document.getElementById('goalIn').value)||2000;
+  localStorage.setItem('cc_goal',goal);updateHeader();
+}
+
+function saveWeight(){
+  weight=parseInt(document.getElementById('weightIn').value)||70;
+  localStorage.setItem('cc_weight',weight);
+  autoCalcGoal();
+  renderExGrid();
+  document.getElementById('exSub').textContent=t('exSub',weight);
+}
+
+function setGender(g){
+  gender=g;
+  localStorage.setItem('cc_gender',g);
+  const male=document.getElementById('btnMale');
+  const female=document.getElementById('btnFemale');
+  if(male&&female){
+    if(g==='male'){
+      male.style.background='var(--green)';male.style.color='#fff';male.style.borderColor='var(--green)';
+      female.style.background='var(--bg)';female.style.color='var(--text2)';female.style.borderColor='var(--border)';
+    } else {
+      female.style.background='var(--green)';female.style.color='#fff';female.style.borderColor='var(--green)';
+      male.style.background='var(--bg)';male.style.color='var(--text2)';male.style.borderColor='var(--border)';
+    }
+  }
+  autoCalcGoal();
+}
+
+function autoCalcGoal(){
+  if(!weight)return;
+  // Harris-Benedict 공식 기반 TDEE (보통 활동량 기준)
+  let bmr;
+  if(gender==='male'){
+    bmr=Math.round(88.362+(13.397*weight)+(4.799*170)-(5.677*30));
+  } else {
+    bmr=Math.round(447.593+(9.247*weight)+(3.098*162)-(4.330*30));
+  }
+  const tdee=Math.round(bmr*1.55); // 보통 활동량
+  goal=tdee;
+  document.getElementById('goalIn').value=tdee;
+  localStorage.setItem('cc_goal',tdee);
+  updateHeader();
+  showToast(lang==='ko'?`칼로리 목표 ${tdee.toLocaleString()}kcal로 자동 설정됐어요!`:`Goal auto-set to ${tdee.toLocaleString()} kcal!`);
+}
+
+function clearLogs(){
+  if(confirm(t('delConfirm'))){
+    logs=[];exLogs=[];
+    localStorage.removeItem('cc_logs');localStorage.removeItem('cc_exlogs');
+    updateHeader();renderCalendar();renderExLogs();
+    if(selectedDate)showDayDetail(selectedDate);
+  }
+}
+
+function deleteFoodLog(idx, e){
+  if(e)e.stopPropagation();
+  const msg=lang==='ko'?`"${logs[idx].name}" 기록을 삭제할까요?`:`Delete "${logs[idx].name}"?`;
+  if(!confirm(msg))return;
+  logs.splice(idx,1);
+  saveLogs();updateHeader();renderCalendar();
+  if(selectedDate)showDayDetail(selectedDate);
+  showToast(lang==='ko'?'삭제됐어요!':'Deleted!');
+}
+
+function deleteExLog(idx, e){
+  if(e)e.stopPropagation();
+  const msg=lang==='ko'?`"${exLogs[idx].name}" 운동 기록을 삭제할까요?`:`Delete "${exLogs[idx].name}"?`;
+  if(!confirm(msg))return;
+  exLogs.splice(idx,1);
+  saveExLogs();updateHeader();renderCalendar();renderExLogs();
+  if(selectedDate)showDayDetail(selectedDate);
+  showToast(lang==='ko'?'삭제됐어요!':'Deleted!');
+}
+
+function editExLog(idx){
+  const log=exLogs[idx];
+  const newMin=parseInt(prompt(lang==='ko'?`"${log.name}" 운동 시간 수정 (현재: ${log.minutes}분):`:`Edit "${log.name}" duration (current: ${log.minutes} min):`, log.minutes));
+  if(!newMin||newMin<=0)return;
+  const ex=EXERCISES.find(e=>(e.name.ko===log.name||e.name.en===log.name));
+  const met=ex?ex.met:5;
+  exLogs[idx].minutes=newMin;
+  exLogs[idx].calories=calcExCal(met,newMin);
+  saveExLogs();updateHeader();renderCalendar();renderExLogs();
+  if(selectedDate)showDayDetail(selectedDate);
+  showToast(lang==='ko'?'수정됐어요!':'Updated!');
+}
+
+/* ====== 영양제 & 운동 추천 로직 ====== */
+const SUPPLEMENTS = {
+  ko: [
+    {key:'protein', ico:'🥩', name:'단백질 보충제', desc:'근육 회복과 포만감에 도움. 운동 후 섭취 추천', badge:'근육&포만감', badgeClass:'rec-badge-green', url:'https://link.coupang.com/a/supplement_protein'},
+    {key:'fiber',   ico:'🌿', name:'식이섬유 보충제', desc:'장 건강과 혈당 조절에 도움. 식사 전 섭취 추천', badge:'장건강&혈당', badgeClass:'rec-badge-green', url:'https://link.coupang.com/a/supplement_fiber'},
+    {key:'calcium', ico:'🦴', name:'칼슘+비타민D', desc:'뼈 건강과 면역력 강화. 식사와 함께 섭취 추천', badge:'뼈건강', badgeClass:'rec-badge-blue', url:'https://link.coupang.com/a/supplement_calcium'},
+    {key:'omega3',  ico:'🐟', name:'오메가-3', desc:'심혈관 건강과 염증 완화에 도움. 지방 섭취 보완', badge:'심혈관건강', badgeClass:'rec-badge-blue', url:'https://link.coupang.com/a/supplement_omega3'},
+    {key:'multi',   ico:'💊', name:'종합 비타민', desc:'전반적인 영양 균형을 맞춰주는 기본 영양제', badge:'종합영양', badgeClass:'rec-badge-amber', url:'https://link.coupang.com/a/supplement_multi'},
+    {key:'iron',    ico:'🩸', name:'철분제', desc:'피로 해소와 혈액 건강. 특히 여성에게 추천', badge:'피로해소', badgeClass:'rec-badge-amber', url:'https://link.coupang.com/a/supplement_iron'},
+    {key:'magnesium',ico:'⚡', name:'마그네슘', desc:'근육 이완과 수면 질 개선. 저녁 섭취 추천', badge:'수면&근육', badgeClass:'rec-badge-green', url:'https://link.coupang.com/a/supplement_magnesium'},
+  ],
+  en: [
+    {key:'protein', ico:'🥩', name:'Protein Supplement', desc:'Supports muscle recovery and satiety. Best after workouts', badge:'Muscle & Fullness', badgeClass:'rec-badge-green', url:'https://www.amazon.com/s?k=protein+supplement'},
+    {key:'fiber',   ico:'🌿', name:'Fiber Supplement', desc:'Supports gut health and blood sugar control', badge:'Gut Health', badgeClass:'rec-badge-green', url:'https://www.amazon.com/s?k=fiber+supplement'},
+    {key:'calcium', ico:'🦴', name:'Calcium + Vitamin D', desc:'Bone health and immune support. Take with meals', badge:'Bone Health', badgeClass:'rec-badge-blue', url:'https://www.amazon.com/s?k=calcium+vitamin+d'},
+    {key:'omega3',  ico:'🐟', name:'Omega-3', desc:'Heart health and anti-inflammation. Complements fat intake', badge:'Heart Health', badgeClass:'rec-badge-blue', url:'https://www.amazon.com/s?k=omega3+supplement'},
+    {key:'multi',   ico:'💊', name:'Multivitamin', desc:'Overall nutritional balance for daily health', badge:'Full Nutrition', badgeClass:'rec-badge-amber', url:'https://www.amazon.com/s?k=multivitamin'},
+    {key:'iron',    ico:'🩸', name:'Iron Supplement', desc:'Energy and blood health. Especially for women', badge:'Energy', badgeClass:'rec-badge-amber', url:'https://www.amazon.com/s?k=iron+supplement'},
+    {key:'magnesium',ico:'⚡', name:'Magnesium', desc:'Muscle relaxation and better sleep quality', badge:'Sleep & Muscle', badgeClass:'rec-badge-green', url:'https://www.amazon.com/s?k=magnesium+supplement'},
+  ]
+};
+
+const FITNESS_PROGRAMS = {
+  ko: [
+    {key:'strength', ico:'💪', name:'근력 강화 PT', desc:'퍼스널 트레이너와 1:1 맞춤 근력 운동. 체지방 감소와 근육량 증가에 효과적이에요.', badge:'근력강화', badgeClass:'rec-badge-green', url:'https://www.naver.com/search.nhn?query=PT+헬스장'},
+    {key:'cardio',   ico:'🏃', name:'유산소 운동 클래스', desc:'스피닝, 줌바, 에어로빅 등 재미있는 유산소 운동으로 칼로리 소모를 높여요.', badge:'다이어트', badgeClass:'rec-badge-amber', url:'https://www.naver.com/search.nhn?query=유산소+운동+클래스'},
+    {key:'pilates',  ico:'🧘', name:'필라테스', desc:'코어 강화와 자세 교정에 탁월해요. 관절 부담 없이 전신을 균형 있게 단련할 수 있어요.', badge:'코어&자세', badgeClass:'rec-badge-blue', url:'https://www.naver.com/search.nhn?query=필라테스+센터'},
+    {key:'yoga',     ico:'🙏', name:'요가 클래스', desc:'유연성과 정신 건강까지 챙길 수 있어요. 스트레스 해소와 수면 개선에도 효과적이에요.', badge:'유연성&힐링', badgeClass:'rec-badge-blue', url:'https://www.naver.com/search.nhn?query=요가+센터'},
+    {key:'swimming', ico:'🏊', name:'수영 & 아쿠아로빅', desc:'관절에 무리 없이 전신 운동이 가능해요. 과체중이나 관절이 약한 분께 특히 추천해요.', badge:'관절보호', badgeClass:'rec-badge-green', url:'https://www.naver.com/search.nhn?query=수영+센터'},
+    {key:'hiking',   ico:'🧗', name:'등산 & 트레킹', desc:'자연 속에서 즐기는 유산소 운동. 심폐 기능 강화와 정신 건강에 모두 도움이 돼요.', badge:'심폐강화', badgeClass:'rec-badge-amber', url:'https://www.naver.com/search.nhn?query=등산+트레킹'},
+  ],
+  en: [
+    {key:'strength', ico:'💪', name:'Personal Training (PT)', desc:'1-on-1 strength training with a personal trainer. Effective for fat loss and muscle gain.', badge:'Strength', badgeClass:'rec-badge-green', url:'https://www.google.com/search?q=personal+training+near+me'},
+    {key:'cardio',   ico:'🏃', name:'Cardio Classes', desc:'Spinning, Zumba, aerobics — fun ways to burn calories and improve cardiovascular health.', badge:'Fat Burn', badgeClass:'rec-badge-amber', url:'https://www.google.com/search?q=cardio+classes+near+me'},
+    {key:'pilates',  ico:'🧘', name:'Pilates', desc:'Excellent for core strength and posture correction. Low-impact and joint-friendly.', badge:'Core & Posture', badgeClass:'rec-badge-blue', url:'https://www.google.com/search?q=pilates+studio+near+me'},
+    {key:'yoga',     ico:'🙏', name:'Yoga Classes', desc:'Improves flexibility and mental health. Great for stress relief and better sleep.', badge:'Flexibility', badgeClass:'rec-badge-blue', url:'https://www.google.com/search?q=yoga+studio+near+me'},
+    {key:'swimming', ico:'🏊', name:'Swimming & Aqua Aerobics', desc:'Full-body workout with no joint stress. Especially recommended for those with joint concerns.', badge:'Joint-Friendly', badgeClass:'rec-badge-green', url:'https://www.google.com/search?q=swimming+pool+near+me'},
+    {key:'hiking',   ico:'🧗', name:'Hiking & Trekking', desc:'Cardio in nature. Great for heart health and mental wellness.', badge:'Cardio', badgeClass:'rec-badge-amber', url:'https://www.google.com/search?q=hiking+trails+near+me'},
+  ]
+};
+
+function renderRecCard(item){
+  return `<a href="${item.url}" target="_blank" rel="noopener" class="rec-card">
+    <div class="rec-ico">${item.ico}</div>
+    <div class="rec-info">
+      <div class="rec-name">${item.name}</div>
+      <div class="rec-desc">${item.desc}</div>
+    </div>
+    <span class="rec-badge ${item.badgeClass}">${item.badge}</span>
+    <div class="rec-arrow">›</div>
+  </a>`;
+}
+
+function showSupplements(avgProt, avgCarb, avgFat, avgFiber, avgSugar, ko){
+  const suppList = SUPPLEMENTS[lang];
+  const recommended = [];
+  let msg = '';
+
+  // 단백질 부족
+  if(avgProt < 40){
+    recommended.push(suppList.find(s=>s.key==='protein'));
+    msg += ko ? '단백질 섭취가 조금 부족한 편이에요. 근육 유지와 포만감을 위해 단백질 보충을 고려해보세요. '
+               : 'Protein intake seems a bit low. Consider supplementing for muscle maintenance and satiety. ';
+  }
+  // 식이섬유 부족
+  if(avgFiber < 15){
+    recommended.push(suppList.find(s=>s.key==='fiber'));
+    msg += ko ? '식이섬유 섭취가 부족해요. 장 건강과 혈당 조절에 도움이 돼요. '
+               : 'Fiber intake is low. It helps with gut health and blood sugar control. ';
+  }
+  // 지방 과다 → 오메가3 추천
+  if(avgFat > 60){
+    recommended.push(suppList.find(s=>s.key==='omega3'));
+    msg += ko ? '지방 섭취가 높은 편이에요. 좋은 지방인 오메가-3를 보충하면 심혈관 건강에 도움이 돼요. '
+               : 'Fat intake is a bit high. Adding Omega-3 can support heart health. ';
+  }
+  // 여성이면 철분 추천
+  if(gender==='female'){
+    recommended.push(suppList.find(s=>s.key==='iron'));
+    msg += ko ? '여성분께는 철분 보충이 도움이 될 수 있어요. '
+               : 'Iron supplementation can be especially helpful for women. ';
+  }
+  // 기본 추천 (항상)
+  recommended.push(suppList.find(s=>s.key==='multi'));
+  if(!msg) msg = ko ? '전반적으로 균형 잡힌 식단이에요! 그래도 기본적인 영양제로 더 완벽하게 챙겨보세요. '
+                    : 'Overall your diet looks balanced! These supplements can help you stay even healthier. ';
+
+  const unique=[...new Map(recommended.filter(Boolean).map(s=>[s.key,s])).values()].slice(0,3);
+
+  document.getElementById('suppMsg').textContent=msg.trim();
+  document.getElementById('suppCards').innerHTML=unique.map(renderRecCard).join('');
+  document.getElementById('suppTitle').textContent=ko?'💊 맞춤 영양제 추천':'💊 Supplement Recommendations';
+  document.getElementById('suppBox').style.display='block';
+}
+
+function showFitnessRec(exCal, totalExDays, ko){
+  const fitList = FITNESS_PROGRAMS[lang];
+  const recommended = [];
+  let msg = '';
+  const bmi = weight / ((1.7)*(1.7));
+
+  if(exCal === 0){
+    msg = ko ? '오늘은 운동 기록이 없네요. 꾸준한 운동은 칼로리 소모뿐 아니라 기분과 수면 질도 높여줘요. 처음엔 가벼운 것부터 시작해보는 건 어떨까요? 😊'
+             : "No exercise recorded today. Regular movement boosts mood, sleep, and metabolism. Start light! 😊";
+    if(bmi > 25){
+      recommended.push(fitList.find(f=>f.key==='swimming'));
+      recommended.push(fitList.find(f=>f.key==='pilates'));
+      msg = ko ? '과체중의 경우 관절에 무리가 갈 수 있어요. 수영이나 필라테스처럼 관절에 부담이 적은 운동부터 시작하시는 게 좋아요. 꾸준히 하다 보면 분명 좋아질 거예요! 💪'
+               : "When carrying extra weight, joints can be stressed by high-impact exercise. Swimming or Pilates is gentler and still very effective. Start there! 💪";
+    } else {
+      recommended.push(fitList.find(f=>f.key==='cardio'));
+      recommended.push(fitList.find(f=>f.key==='yoga'));
+    }
+  } else if(exCal < 150){
+    msg = ko ? '가볍게 운동하고 계시네요! 유산소 운동을 조금 더 추가하면 다이어트와 심폐 건강에 더 큰 효과를 볼 수 있어요. 재미있는 클래스를 찾아보는 것도 좋아요! 🏃'
+             : "You're getting some exercise! Adding more cardio can boost fat burning and heart health. Try a fun class! 🏃";
+    recommended.push(fitList.find(f=>f.key==='cardio'));
+    recommended.push(fitList.find(f=>f.key==='strength'));
+  } else {
+    msg = ko ? '운동을 잘 하고 계세요! 근력 운동과 유산소를 균형 있게 병행하면 더욱 효과적이에요. 전문적인 지도를 받으면 운동 효율이 훨씬 높아질 수 있어요! 🌟'
+             : "Great exercise habits! Combining strength and cardio gives the best results. Professional guidance can take you even further! 🌟";
+    recommended.push(fitList.find(f=>f.key==='strength'));
+    recommended.push(fitList.find(f=>f.key==='pilates'));
+  }
+
+  const unique=[...new Map(recommended.filter(Boolean).map(f=>[f.key,f])).values()].slice(0,3);
+  document.getElementById('fitMsg').textContent=msg.trim();
+  document.getElementById('fitCards').innerHTML=unique.map(renderRecCard).join('');
+  document.getElementById('fitTitle').textContent=ko?'🏋️ 맞춤 운동 프로그램 추천':'🏋️ Fitness Program Recommendations';
+  document.getElementById('locBtnT').textContent=ko?'📍 내 주변 운동시설 찾기':'📍 Find Gyms Near Me';
+  document.getElementById('fitBox').style.display='block';
+}
+
+/* ====== 위치 기반 운동시설 검색 ====== */
+let kakaoMapInstance = null;
+let userLat = null, userLng = null;
+
+function findNearbyGyms(){
+  const ko = lang === 'ko';
+  const statusEl = document.getElementById('locStatus');
+  const btnEl = document.getElementById('locBtn');
+  statusEl.style.display = 'block';
+  statusEl.textContent = ko ? '위치를 확인하고 있어요...' : 'Getting your location...';
+  btnEl.disabled = true;
+  btnEl.style.opacity = '0.7';
+
+  if(!navigator.geolocation){
+    statusEl.textContent = ko ? '이 브라우저는 위치 서비스를 지원하지 않아요.' : 'Location not supported in this browser.';
+    btnEl.disabled = false; btnEl.style.opacity = '1';
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      userLat = pos.coords.latitude;
+      userLng = pos.coords.longitude;
+      statusEl.textContent = ko ? '주변 운동시설을 검색하고 있어요...' : 'Searching nearby gyms...';
+      loadKakaoMap(userLat, userLng, ko, statusEl, btnEl);
+    },
+    err => {
+      statusEl.textContent = ko
+        ? '위치 권한이 거부됐어요. 브라우저 설정에서 위치 허용 후 다시 시도해주세요.'
+        : 'Location access denied. Please allow location in browser settings.';
+      btnEl.disabled = false; btnEl.style.opacity = '1';
+    },
+    { timeout: 10000 }
+  );
+}
+
+function loadKakaoMap(lat, lng, ko, statusEl, btnEl){
+  // 카카오맵 API 스크립트 동적 로드
+  if(window.kakao && window.kakao.maps){
+    initKakaoMap(lat, lng, ko, statusEl, btnEl);
+    return;
+  }
+  const script = document.createElement('script');
+  script.src = 'https://dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_API_KEY&libraries=services&autoload=false';
+  script.onload = () => {
+    kakao.maps.load(() => initKakaoMap(lat, lng, ko, statusEl, btnEl));
+  };
+  script.onerror = () => {
+    // API 키 없으면 네이버 지도 검색으로 폴백
+    showNaverMapFallback(lat, lng, ko, statusEl, btnEl);
+  };
+  document.head.appendChild(script);
+}
+
+function initKakaoMap(lat, lng, ko, statusEl, btnEl){
+  const mapContainer = document.getElementById('kakaoMap');
+  const mapOption = {
+    center: new kakao.maps.LatLng(lat, lng),
+    level: 4
+  };
+  kakaoMapInstance = new kakao.maps.Map(mapContainer, mapOption);
+
+  // 현재 위치 마커
+  const userMarker = new kakao.maps.Marker({
+    position: new kakao.maps.LatLng(lat, lng),
+    map: kakaoMapInstance
+  });
+  const userInfo = new kakao.maps.InfoWindow({content:`<div style="padding:4px 8px;font-size:12px;font-weight:700">📍 ${ko?'내 위치':'My Location'}</div>`});
+  userInfo.open(kakaoMapInstance, userMarker);
+
+  // 키워드 검색
+  const ps = new kakao.maps.services.Places();
+  const keywords = ['헬스장', '필라테스', 'PT샵'];
+  let allResults = [];
+  let searchCount = 0;
+
+  keywords.forEach(keyword => {
+    ps.keywordSearch(keyword, (data, status) => {
+      searchCount++;
+      if(status === kakao.maps.services.Status.OK){
+        allResults = allResults.concat(data.slice(0, 5));
+      }
+      if(searchCount === keywords.length){
+        // 거리순 정렬
+        allResults.sort((a,b) => {
+          const da = Math.sqrt(Math.pow(a.y-lat,2)+Math.pow(a.x-lng,2));
+          const db = Math.sqrt(Math.pow(b.y-lat,2)+Math.pow(b.x-lng,2));
+          return da - db;
+        });
+        const unique = allResults.filter((v,i,a)=>a.findIndex(t=>t.id===v.id)===i).slice(0,8);
+        renderGymMarkers(unique, lat, lng, ko);
+        renderGymList(unique, lat, lng, ko);
+        statusEl.style.display = 'none';
+        btnEl.textContent = ko ? '✅ 검색 완료' : '✅ Done';
+        btnEl.style.background = 'var(--green-d)';
+        document.getElementById('mapWrap').style.display = 'block';
+      }
+    }, {
+      location: new kakao.maps.LatLng(lat, lng),
+      radius: 3000,
+      sort: kakao.maps.services.SortBy.DISTANCE
+    });
+  });
+}
+
+function renderGymMarkers(gyms, userLat, userLng, ko){
+  const colors = {'헬스장':'#2D7A5F', '필라테스':'#3B82C4', 'PT샵':'#FF6B35'};
+  gyms.forEach((gym, i) => {
+    const pos = new kakao.maps.LatLng(gym.y, gym.x);
+    const marker = new kakao.maps.Marker({ position: pos, map: kakaoMapInstance });
+    const info = new kakao.maps.InfoWindow({
+      content: `<div style="padding:4px 8px;font-size:11px;font-weight:700;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${gym.place_name}</div>`
+    });
+    kakao.maps.event.addListener(marker, 'click', () => {
+      info.open(kakaoMapInstance, marker);
+    });
+  });
+}
+
+function calcDistance(lat1, lng1, lat2, lng2){
+  const R = 6371000;
+  const dLat = (lat2-lat1) * Math.PI/180;
+  const dLng = (lng2-lng1) * Math.PI/180;
+  const a = Math.sin(dLat/2)*Math.sin(dLat/2) +
+            Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
+            Math.sin(dLng/2)*Math.sin(dLng/2);
+  return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+}
+
+function renderGymList(gyms, userLat, userLng, ko){
+  const typeIco = {'헬스장':'💪', '필라테스':'🧘', 'PT샵':'🏋️'};
+  const el = document.getElementById('gymList');
+  el.innerHTML = gyms.map(gym => {
+    const dist = calcDistance(userLat, userLng, parseFloat(gym.y), parseFloat(gym.x));
+    const distText = dist >= 1000 ? (dist/1000).toFixed(1)+'km' : dist+'m';
+    const ico = Object.keys(typeIco).find(k=>gym.category_name&&gym.category_name.includes(k));
+    const emoji = typeIco[ico] || '🏃';
+    const mapUrl = `https://map.kakao.com/link/to/${gym.id}`;
+    return `<a href="${mapUrl}" target="_blank" rel="noopener" class="rec-card">
+      <div class="rec-ico" style="background:var(--green-l)">${emoji}</div>
+      <div class="rec-info">
+        <div class="rec-name">${gym.place_name}</div>
+        <div class="rec-desc">${gym.road_address_name||gym.address_name}</div>
+        ${gym.phone?`<div style="font-size:11px;color:var(--green-d);margin-top:2px">📞 ${gym.phone}</div>`:''}
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:12px;font-weight:700;color:var(--green-d)">${distText}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px">${ko?'길찾기':'Map'}</div>
+      </div>
+    </a>`;
+  }).join('');
+}
+
+function showNaverMapFallback(lat, lng, ko, statusEl, btnEl){
+  // 카카오 API 키 없을 때 네이버 지도 검색으로 대체
+  statusEl.style.display = 'none';
+  btnEl.disabled = false; btnEl.style.opacity = '1';
+  document.getElementById('mapWrap').style.display = 'block';
+  document.getElementById('kakaoMap').style.display = 'none';
+  const keywords = ko
+    ? ['헬스장', '필라테스', 'PT 헬스']
+    : ['gym', 'pilates', 'fitness center'];
+  document.getElementById('gymList').innerHTML = keywords.map(kw => {
+    const url = `https://map.naver.com/v5/search/${encodeURIComponent(kw)}`;
+    return `<a href="${url}" target="_blank" rel="noopener" class="rec-card">
+      <div class="rec-ico" style="background:var(--green-l)">🔍</div>
+      <div class="rec-info">
+        <div class="rec-name">${ko?`주변 ${kw} 검색`:`Search nearby ${kw}`}</div>
+        <div class="rec-desc">${ko?'네이버 지도에서 내 위치 기반으로 검색해요':'Search on Naver Map based on your location'}</div>
+      </div>
+      <div class="rec-arrow">›</div>
+    </a>`;
+  }).join('');
+}
+
+/* ====== PWA 설치 유도 ====== */
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+
+window.addEventListener('appinstalled', () => {
+  localStorage.setItem('cc_pwa_installed', '1');
+  hidePWABanner();
+  showToast(lang==='ko' ? '홈화면에 추가됐어요! 🎉' : 'Added to home screen! 🎉');
+});
+
+// 모든 브라우저 - 항상 배너 표시 (2.5초 후)
+setTimeout(() => {
+  if(!localStorage.getItem('cc_pwa_installed') && !localStorage.getItem('cc_pwa_dismissed')){
+    showPWABanner();
+  }
+}, 2500);
+
+function showPWABanner(){
+  const ko = lang === 'ko';
+  const banner = document.getElementById('pwaBanner');
+  if(!banner) return;
+  document.getElementById('pwaBannerTitle').textContent = ko ? '홈화면에 추가하기' : 'Add to Home Screen';
+  document.getElementById('pwaBannerSub').textContent = ko ? '앱처럼 바로 실행할 수 있어요!' : 'Launch like a native app!';
+  document.getElementById('pwaBannerBtn').textContent = ko ? '방법 보기' : 'How to';
+  banner.style.display = 'flex';
+}
+
+function hidePWABanner(){
+  const banner = document.getElementById('pwaBanner');
+  if(banner) banner.style.display = 'none';
+}
+
+async function installPWA(){
+  // 크롬은 바로 설치
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    const result = await deferredPrompt.userChoice;
+    if(result.outcome === 'accepted'){
+      localStorage.setItem('cc_pwa_installed','1');
+      hidePWABanner();
+      showToast(lang==='ko' ? '설치됐어요! 홈화면을 확인해보세요 😊' : 'Installed! Check your home screen 😊');
+    }
+    deferredPrompt = null;
+    return;
+  }
+  // 그 외 브라우저 - 안내 모달 표시
+  showInstallGuide();
+}
+
+function closePWABanner(){
+  hidePWABanner();
+  localStorage.setItem('cc_pwa_dismissed','1');
+  // 배너 닫힌 후 2초 뒤 로그인 창
+  setTimeout(()=>{
+    if(!window._currentUser && !localStorage.getItem('cc_skip_auth')){
+      showAuthModal();
+    }
+  }, 2000);
+}
+
+function showInstallGuide(){
+  const ko = lang === 'ko';
+  // 안내 모달 표시 후 배너 바로 닫기
+  hidePWABanner();
+  localStorage.setItem('cc_pwa_dismissed','1');
+
+  const existing = document.getElementById('installGuideModal');
+  if(existing) existing.remove();
+
+  const steps = ko
+    ? [
+        {ico:'1️⃣', text:'브라우저 메뉴 버튼을 탭해요'},
+        {ico:'   ', text:'(엣지: 우측 하단 ≡ / 웨일: 주소창 왼쪽 ··· / 네이버: 우측 하단 = / 삼성: 하단 ☰)'},
+        {ico:'2️⃣', text:'"홈화면에 추가" 또는 "휴대폰에 추가"를 선택해요'},
+        {ico:'3️⃣', text:'"추가"를 탭하면 완료!'}
+      ]
+    : [
+        {ico:'1️⃣', text:'Tap the browser menu button'},
+        {ico:'   ', text:'(Edge: ≡ bottom right / Whale: ··· left of address bar / Naver: = bottom right)'},
+        {ico:'2️⃣', text:'Select "Add to Home Screen" or "Add to phone"'},
+        {ico:'3️⃣', text:'Tap "Add" — done!'}
+      ];
+
+  const modal = document.createElement('div');
+  modal.id = 'installGuideModal';
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:2000;display:flex;align-items:flex-end;justify-content:center;padding:0';
+
+  const stepsHtml = steps.map(s => `
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:18px;flex-shrink:0;min-width:28px">${s.ico}</span>
+      <span style="font-size:13px;color:var(--text);line-height:1.6">${s.text}</span>
+    </div>`).join('');
+
+  const closeAndLogin = `
+    document.getElementById('installGuideModal').remove();
+    setTimeout(()=>{
+      if(!window._currentUser && !localStorage.getItem('cc_skip_auth')){
+        showAuthModal();
+      }
+    }, 2000);`;
+
+  modal.innerHTML = `
+    <div style="background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:440px;padding:20px;max-height:80vh;overflow-y:auto">
+      <div style="width:36px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 16px"></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <div style="width:42px;height:42px;background:linear-gradient(135deg,var(--green-m),var(--green));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px">🥗</div>
+        <div>
+          <div style="font-size:16px;font-weight:800;color:var(--text)">${ko?'홈화면에 추가하기':'Add to Home Screen'}</div>
+          <div style="font-size:12px;color:var(--text2)">${ko?'앱처럼 바로 실행할 수 있어요':'Launch like a native app'}</div>
+        </div>
+      </div>
+      <div style="margin-bottom:16px">${stepsHtml}</div>
+      <div style="background:var(--green-l);border-radius:var(--r-xs);padding:10px 12px;font-size:12px;color:var(--green-d);margin-bottom:14px;line-height:1.6">
+        💡 ${ko?'크롬 브라우저는 버튼 한 번으로 바로 추가할 수 있어요!':'Using Chrome? You can add with just one tap!'}
+      </div>
+      <button onclick="${closeAndLogin}" style="width:100%;padding:13px;background:var(--green);color:#fff;border:none;border-radius:var(--r-xs);font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font)">
+        ${ko?'닫기':'Close'}
+      </button>
+    </div>`;
+
+  modal.addEventListener('click', function(e){
+    if(e.target === modal){
+      modal.remove();
+      setTimeout(()=>{
+        if(!window._currentUser && !localStorage.getItem('cc_skip_auth')) showAuthModal();
+      }, 2000);
+    }
+  });
+  document.body.appendChild(modal);
+}
+
+/* ====== 뒤로가기 핸들러 ====== */
+let currentPage = 'a';
+
+function initBackHandler(){
+  // 초기 히스토리 스택 설정
+  history.pushState({page:'a'}, '');
+
+  window.addEventListener('popstate', function(e){
+    if(e.state && e.state.page){
+      // 앱 내부 상태 복원
+    }
+
+    // 모달이 열려있으면 모달 닫기
+    if(document.getElementById('authOverlay').style.display !== 'none'){
+      closeAuthModal();
+      history.pushState({page:currentPage}, '');
+      return;
+    }
+
+    // 캘린더에서 날짜 상세가 열려있으면 닫기
+    if(currentPage === 'c' && document.getElementById('dayDetail').style.display !== 'none'){
+      document.getElementById('dayDetail').style.display = 'none';
+      selectedDate = null;
+      renderCalendar();
+      history.pushState({page:'c'}, '');
+      return;
+    }
+
+    // 결과 카드가 열려있으면 닫기
+    if(currentPage === 'a'){
+      if(document.getElementById('resultBox').classList.contains('on') ||
+         document.getElementById('menuResult').classList.contains('on')){
+        resetAnalyze();
+        history.pushState({page:'a'}, '');
+        return;
+      }
+    }
+
+    // 메인 탭이 아닌 경우 분석 탭으로 이동
+    if(currentPage !== 'a'){
+      go('a');
+      history.pushState({page:'a'}, '');
+      return;
+    }
+
+    // 분석 탭에서 뒤로가기 → 앱 종료 확인
+    const ko = lang === 'ko';
+    if(confirm(ko ? '앱을 종료할까요?' : 'Exit the app?')){
+      history.back();
+    } else {
+      history.pushState({page:'a'}, '');
+    }
+  });
+}
+
+
+
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+/* ====== Firebase Auth 로직 ====== */
+let currentUser = null;
+
+window.onAuthChanged = function(user){
+  currentUser = user;
+  const ko = lang === 'ko';
+  if(user){
+    document.getElementById('userBar').style.display = 'flex';
+    document.getElementById('loginShowBtn').style.display = 'none';
+    const name = user.displayName || user.email.split('@')[0];
+    document.getElementById('userName').textContent = name;
+    if(user.photoURL){
+      document.getElementById('userAvatar').innerHTML = `<img src="${user.photoURL}" alt="${name}"/>`;
+    } else {
+      document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+    }
+    document.getElementById('logoutBtn').textContent = ko ? '로그아웃' : 'Logout';
+    loadUserData();
+  } else {
+    document.getElementById('userBar').style.display = 'none';
+    document.getElementById('loginShowBtn').style.display = 'block';
+    document.getElementById('loginShowBtn').textContent = ko ? '로그인' : 'Login';
+    // PWA 배너 없을 때만 로그인 창 (배너 있으면 배너 닫을때 뜸)
+    setTimeout(()=>{
+      const banner = document.getElementById('pwaBanner');
+      const bannerVisible = banner && banner.style.display !== 'none';
+      if(!currentUser && !localStorage.getItem('cc_skip_auth') && !bannerVisible){
+        showAuthModal();
+      }
+    }, 10000);
+  }
+};
+
+function showAuthModal(){
+  document.getElementById('authOverlay').style.display = 'flex';
+  applyAuthLang();
+}
+
+function closeAuthModal(){
+  document.getElementById('authOverlay').style.display = 'none';
+  localStorage.setItem('cc_skip_auth','1');
+}
+
+function applyAuthLang(){
+  const ko = lang === 'ko';
+  document.getElementById('tabLogin').textContent = ko ? '로그인' : 'Login';
+  document.getElementById('tabSignup').textContent = ko ? '회원가입' : 'Sign Up';
+  document.getElementById('googleBtnT').textContent = ko ? 'Google로 계속하기' : 'Continue with Google';
+  document.getElementById('authOrT').textContent = ko ? '또는' : 'or';
+  document.getElementById('loginEmail').placeholder = ko ? '이메일' : 'Email';
+  document.getElementById('loginPw').placeholder = ko ? '비밀번호' : 'Password';
+  document.getElementById('loginBtnT').textContent = ko ? '이메일로 로그인' : 'Login with Email';
+  document.getElementById('signupNick').placeholder = ko ? '닉네임 (앱에서 표시되는 이름)' : 'Nickname (shown in app)';
+  document.getElementById('signupEmail').placeholder = ko ? '이메일' : 'Email';
+  document.getElementById('signupPw').placeholder = ko ? '비밀번호 (6자 이상)' : 'Password (min 6 chars)';
+  document.getElementById('signupBtnT').textContent = ko ? '회원가입' : 'Sign Up';
+  document.getElementById('skipBtnT').textContent = ko ? '나중에 하기' : 'Skip for now';
+  document.getElementById('authSubT').innerHTML = ko
+    ? '기기를 바꿔도 데이터가 유지돼요.<br>간편하게 가입하고 시작해보세요!'
+    : 'Your data stays safe across devices.<br>Sign up to get started!';
+}
+
+function switchTab(tab){
+  const isLogin = tab === 'login';
+  document.getElementById('tabLogin').classList.toggle('on', isLogin);
+  document.getElementById('tabSignup').classList.toggle('on', !isLogin);
+  document.getElementById('loginForm').style.display = isLogin ? 'block' : 'none';
+  document.getElementById('signupForm').style.display = isLogin ? 'none' : 'block';
+}
+
+async function doGoogleLogin(){
+  try{
+    const result = await window._fbSignInWithPopup(window._fbAuth, window._fbGoogleProvider);
+    const user = result.user;
+    await saveUserProfile(user.uid, user.displayName || '', user.email, user.photoURL || '');
+    closeAuthModal();
+    showToast(lang==='ko' ? `${user.displayName||''}님 환영해요! 😊` : `Welcome, ${user.displayName||''}! 😊`);
+  }catch(e){
+    console.error(e);
+    showToast(lang==='ko' ? '로그인 중 오류가 발생했어요.' : 'Login error occurred.');
+  }
+}
+
+async function doEmailLogin(){
+  const email = document.getElementById('loginEmail').value.trim();
+  const pw = document.getElementById('loginPw').value;
+  const errEl = document.getElementById('loginError');
+  if(!email||!pw){ errEl.textContent=lang==='ko'?'이메일과 비밀번호를 입력해주세요.':'Please enter email and password.'; errEl.classList.add('on'); return; }
+  try{
+    const result = await window._fbSignIn(window._fbAuth, email, pw);
+    closeAuthModal();
+    const name = result.user.displayName || email.split('@')[0];
+    showToast(lang==='ko' ? `${name}님 환영해요! 😊` : `Welcome back, ${name}! 😊`);
+  }catch(e){
+    errEl.textContent = lang==='ko' ? '이메일 또는 비밀번호가 올바르지 않아요.' : 'Invalid email or password.';
+    errEl.classList.add('on');
+  }
+}
+
+async function doEmailSignup(){
+  const nick = document.getElementById('signupNick').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const pw = document.getElementById('signupPw').value;
+  const errEl = document.getElementById('signupError');
+  if(!nick||!email||!pw){ errEl.textContent=lang==='ko'?'모든 항목을 입력해주세요.':'Please fill in all fields.'; errEl.classList.add('on'); return; }
+  if(pw.length<6){ errEl.textContent=lang==='ko'?'비밀번호는 6자 이상이어야 해요.':'Password must be at least 6 characters.'; errEl.classList.add('on'); return; }
+  try{
+    const result = await window._fbCreateUser(window._fbAuth, email, pw);
+    await window._fbUpdateProfile(result.user, { displayName: nick });
+    await saveUserProfile(result.user.uid, nick, email, '');
+    closeAuthModal();
+    showToast(lang==='ko' ? `${nick}님 환영해요! 🎉` : `Welcome, ${nick}! 🎉`);
+  }catch(e){
+    const msg = e.code === 'auth/email-already-in-use'
+      ? (lang==='ko' ? '이미 사용 중인 이메일이에요.' : 'Email already in use.')
+      : (lang==='ko' ? '회원가입 중 오류가 발생했어요.' : 'Signup error occurred.');
+    errEl.textContent = msg; errEl.classList.add('on');
+  }
+}
+
+async function doLogout(){
+  await window._fbSignOut(window._fbAuth);
+  showToast(lang==='ko' ? '로그아웃됐어요.' : 'Logged out.');
+}
+
+async function saveUserProfile(uid, name, email, photo){
+  try{
+    await window._fbSetDoc(window._fbDoc(window._fbDb,'users',uid),{
+      name, email, photo, updatedAt: new Date().toISOString()
+    }, {merge:true});
+  }catch(e){ console.error('saveUserProfile error',e); }
+}
+
+async function loadUserData(){
+  if(!currentUser) return;
+  try{
+    const uid = currentUser.uid;
+    // 식단 기록 로드
+    const logsSnap = await window._fbGetDocs(
+      window._fbQuery(window._fbCollection(window._fbDb,'users',uid,'logs'), window._fbOrderBy('time','desc'))
+    );
+    logs = logsSnap.docs.map(d=>d.data());
+    // 운동 기록 로드
+    const exSnap = await window._fbGetDocs(
+      window._fbQuery(window._fbCollection(window._fbDb,'users',uid,'exlogs'), window._fbOrderBy('time','desc'))
+    );
+    exLogs = exSnap.docs.map(d=>({...d.data(), _id:d.id}));
+    updateHeader(); renderCalendar();
+    if(selectedDate) showDayDetail(selectedDate);
+    showToast(lang==='ko' ? '데이터를 불러왔어요!' : 'Data loaded!');
+  }catch(e){ console.error('loadUserData error',e); }
+}
+
+// saveLogs 오버라이드 - Firebase 저장
+const _origSaveLogs = window.saveLogs;
+window.saveLogs = async function(){
+  localStorage.setItem('cc_logs', JSON.stringify(logs));
+  if(!currentUser) return;
+  // 최신 로그 Firebase에 저장
+  try{
+    const uid = currentUser.uid;
+    const ref = window._fbCollection(window._fbDb,'users',uid,'logs');
+    // 전체 다시 저장 (간단한 방식)
+    const snap = await window._fbGetDocs(ref);
+    for(const d of snap.docs) await window._fbDeleteDoc(d.ref);
+    for(const log of logs){
+      await window._fbAddDoc(ref, log);
+    }
+  }catch(e){ console.error('saveLogs firebase error',e); }
+};
+
+window.saveExLogs = async function(){
+  localStorage.setItem('cc_exlogs', JSON.stringify(exLogs));
+  if(!currentUser) return;
+  try{
+    const uid = currentUser.uid;
+    const ref = window._fbCollection(window._fbDb,'users',uid,'exlogs');
+    const snap = await window._fbGetDocs(ref);
+    for(const d of snap.docs) await window._fbDeleteDoc(d.ref);
+    for(const log of exLogs){
+      await window._fbAddDoc(ref, log);
+    }
+  }catch(e){ console.error('saveExLogs firebase error',e); }
+};
+
+function init(){
+  lang=localStorage.getItem('cc_lang')||'ko';
+  goal=parseInt(localStorage.getItem('cc_goal')||'2000');
+  gender=localStorage.getItem('cc_gender')||'male';
+  weight=parseInt(localStorage.getItem('cc_weight')||'70');
+  logs=JSON.parse(localStorage.getItem('cc_logs')||'[]');
+  exLogs=JSON.parse(localStorage.getItem('cc_exlogs')||'[]');
+  document.getElementById('goalIn').value=goal;
+  document.getElementById('weightIn').value=weight;
+  selectedDate=new Date();
+  applyLang();
+  setGender(gender);
+  initBackHandler();
+  renderCalendar();
+  showDayDetail(new Date());
+}
+init();
+</script>
+</body>
+</html>
