@@ -201,10 +201,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .ex-name{font-size:13px;font-weight:600;color:var(--text)}
 .ex-cal{font-size:11px;color:var(--text3);margin-top:1px}
 .ex-custom{background:var(--card);padding:14px 16px;border-top:1px solid var(--border)}
-.ex-custom-row{display:flex;gap:8px;align-items:center;margin-top:10px}
-.ex-input{flex:1;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r-xs);font-size:14px;font-family:var(--font);background:var(--bg);color:var(--text)}
+.ex-custom-row{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.ex-custom-inputs{display:flex;gap:8px;align-items:center}
+.ex-input{flex:1;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r-xs);font-size:14px;font-family:var(--font);background:var(--bg);color:var(--text);min-width:0}
 .ex-input:focus{outline:none;border-color:var(--accent)}
-.ex-add-btn{padding:10px 16px;background:var(--accent);color:#fff;border:none;border-radius:var(--r-xs);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap}
+.ex-add-btn{width:100%;padding:11px 16px;background:var(--accent);color:#fff;border:none;border-radius:var(--r-xs);font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap}
 
 /* History / Calendar */
 .cal-wrap{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
@@ -364,9 +365,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 
   <div class="nav">
     <button class="nb on" id="nb-a" onclick="go('a')"><span class="nb-ico">📷</span><span id="nbt-a">분석</span></button>
-    <button class="nb" id="nb-c" onclick="go('c')"><span class="nb-ico">📅</span><span id="nbt-c">캘린더</span></button>
-    <button class="nb" id="nb-e" onclick="go('e')"><span class="nb-ico">🏃</span><span id="nbt-e">운동</span></button>
-    <button class="nb" id="nb-s" onclick="go('s')"><span class="nb-ico">⚙️</span><span id="nbt-s">설정</span></button>
+    <button class="nb" id="nb-c" onclick="goCalendar()"><span class="nb-ico">📅</span><span id="nbt-c">캘린더</span></button>
+    <button class="nb" id="nb-e" onclick="goExercise()"><span class="nb-ico">🏃</span><span id="nbt-e">운동</span></button>
+    <button class="nb" id="nb-s" onclick="goSettings()"><span class="nb-ico">⚙️</span><span id="nbt-s">설정</span></button>
   </div>
 
   <!-- 분석 -->
@@ -567,32 +568,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 
   <!-- 운동 -->
   <div class="pg" id="pg-e">
-    <div class="exercise-card">
-      <div class="exercise-header">
-        <div class="exercise-title" id="exTitle">운동 칼로리 소모</div>
-        <div class="exercise-sub" id="exSub">체중 70kg 기준 · 설정에서 변경 가능</div>
-      </div>
-      <div class="exercise-grid" id="exGrid"></div>
-      <div class="ex-custom">
-        <div class="sec-title" id="exCustomTitle">직접 입력</div>
-        <div class="ex-custom-row">
-          <input class="ex-input" type="text" id="exName" placeholder="운동 이름"/>
-          <input class="ex-input" style="width:70px" type="number" id="exMin" placeholder="분"/>
-          <button class="ex-add-btn" onclick="addCustomEx()" id="exAddBtn">추가</button>
-        </div>
-      </div>
-    </div>
-    <div class="sec-title" id="exLogTitle">오늘 운동 기록</div>
-    <div id="exLogList"></div>
-  </div>
-
-  <!-- 설정 -->
-  <div class="pg" id="pg-s">
-    <div class="set-card">
-      <div class="set-row">
-        <div><div class="set-l" id="sGL">일일 칼로리 목표</div><div class="set-s" id="sGS">권장: 남성 2500 / 여성 2000 kcal</div></div>
-        <input class="goal-in" type="number" id="goalIn" value="2000" min="500" max="5000" onchange="saveGoal()"/>
-      </div>
+    <!-- 내 정보 입력 (칼로리 계산용) -->
+    <div class="set-card" style="margin-bottom:4px">
       <div class="set-row">
         <div><div class="set-l" id="sWL">체중(kg)</div><div class="set-s" id="sWS">입력 시 칼로리 목표 자동 계산</div></div>
         <input class="goal-in" type="number" id="weightIn" value="70" min="30" max="200" onchange="saveWeight()" style="width:70px"/>
@@ -604,6 +581,35 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
           <button id="btnFemale" onclick="setGender('female')" style="padding:6px 14px;border-radius:99px;border:1.5px solid var(--border);background:var(--bg);color:var(--text2);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">여성</button>
         </div>
       </div>
+      <div class="set-row">
+        <div><div class="set-l" id="sGL">일일 칼로리 목표</div><div class="set-s" id="sGS">권장: 남성 2500 / 여성 2000 kcal</div></div>
+        <input class="goal-in" type="number" id="goalIn" value="2000" min="500" max="5000" onchange="saveGoal()"/>
+      </div>
+    </div>
+    <div class="exercise-card">
+      <div class="exercise-header">
+        <div class="exercise-title" id="exTitle">운동 칼로리 소모</div>
+        <div class="exercise-sub" id="exSub">체중 70kg 기준 · 설정에서 변경 가능</div>
+      </div>
+      <div class="exercise-grid" id="exGrid"></div>
+      <div class="ex-custom">
+        <div class="sec-title" id="exCustomTitle">직접 입력</div>
+        <div class="ex-custom-row">
+          <div class="ex-custom-inputs">
+            <input class="ex-input" type="text" id="exName" placeholder="운동 이름"/>
+            <input class="ex-input" style="width:80px;flex:none" type="number" id="exMin" placeholder="분"/>
+          </div>
+          <button class="ex-add-btn" onclick="addCustomEx()" id="exAddBtn">추가</button>
+        </div>
+      </div>
+    </div>
+    <div class="sec-title" id="exLogTitle">오늘 운동 기록</div>
+    <div id="exLogList"></div>
+  </div>
+
+  <!-- 설정 -->
+  <div class="pg" id="pg-s">
+    <div class="set-card">
       <div class="set-row">
         <div class="set-l" id="sLL">언어</div>
         <div class="set-v" id="sLV">한국어</div>
@@ -806,6 +812,21 @@ function applyLang(){
 
 function toggleLang(){lang=lang==='ko'?'en':'ko';localStorage.setItem('cc_lang',lang);applyLang();}
 
+function goCalendar(){
+  if(!requireLogin()) return;
+  go('c');
+}
+
+function goExercise(){
+  if(!requireLogin()) return;
+  go('e');
+}
+
+function goSettings(){
+  if(!requireLogin()) return;
+  go('s');
+}
+
 function go(name){
   currentPage=name;
   document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
@@ -902,6 +923,7 @@ function renderMenuResult(data){
 }
 
 function addMenuItemToLog(idx){
+  if(!requireLogin()) return;
   const el=document.getElementById('menuItems').children[idx];
   const item=JSON.parse(el.dataset.item);
   const log={...item,sodium:item.sodium||0,fiber:item.fiber||0,sugar:item.sugar||0,
@@ -912,6 +934,7 @@ function addMenuItemToLog(idx){
 
 function saveLog(){
   if(!curResult)return;
+  if(!requireLogin()) return;
   logs.unshift(curResult);saveLogs();updateHeader();
   document.getElementById('saveBtn').textContent=t('saved');
   setTimeout(()=>document.getElementById('saveBtn').textContent=t('saveBtn'),1500);
@@ -1690,12 +1713,6 @@ async function installPWA(){
 function closePWABanner(){
   hidePWABanner();
   localStorage.setItem('cc_pwa_dismissed','1');
-  // 배너 닫힌 후 2초 뒤 로그인 창
-  setTimeout(()=>{
-    if(!window._currentUser && !localStorage.getItem('cc_skip_auth')){
-      showAuthModal();
-    }
-  }, 2000);
 }
 
 function showInstallGuide(){
@@ -1732,12 +1749,7 @@ function showInstallGuide(){
     </div>`).join('');
 
   const closeAndLogin = `
-    document.getElementById('installGuideModal').remove();
-    setTimeout(()=>{
-      if(!window._currentUser && !localStorage.getItem('cc_skip_auth')){
-        showAuthModal();
-      }
-    }, 2000);`;
+    document.getElementById('installGuideModal').remove();`;
 
   modal.innerHTML = `
     <div style="background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:440px;padding:20px;max-height:80vh;overflow-y:auto">
@@ -1761,9 +1773,6 @@ function showInstallGuide(){
   modal.addEventListener('click', function(e){
     if(e.target === modal){
       modal.remove();
-      setTimeout(()=>{
-        if(!window._currentUser && !localStorage.getItem('cc_skip_auth')) showAuthModal();
-      }, 2000);
     }
   });
   document.body.appendChild(modal);
@@ -1834,9 +1843,26 @@ function showToast(msg){
 
 /* ====== Firebase Auth 로직 ====== */
 let currentUser = null;
+let authReady = false;
+
+function requireLogin(action){
+  if(!authReady){
+    // Firebase 아직 초기화 중이면 잠깐 기다렸다 재시도
+    setTimeout(()=>requireLogin(action), 300);
+    return false;
+  }
+  if(!currentUser){
+    const ko = lang === 'ko';
+    showToast(ko ? '🔐 로그인 후 이용할 수 있어요!' : '🔐 Please login to continue!');
+    setTimeout(()=>{ showAuthModal(); }, 800);
+    return false;
+  }
+  return true;
+}
 
 window.onAuthChanged = function(user){
   currentUser = user;
+  authReady = true;
   const ko = lang === 'ko';
   if(user){
     document.getElementById('userBar').style.display = 'flex';
@@ -1854,14 +1880,6 @@ window.onAuthChanged = function(user){
     document.getElementById('userBar').style.display = 'none';
     document.getElementById('loginShowBtn').style.display = 'block';
     document.getElementById('loginShowBtn').textContent = ko ? '로그인' : 'Login';
-    // PWA 배너 없을 때만 로그인 창 (배너 있으면 배너 닫을때 뜸)
-    setTimeout(()=>{
-      const banner = document.getElementById('pwaBanner');
-      const bannerVisible = banner && banner.style.display !== 'none';
-      if(!currentUser && !localStorage.getItem('cc_skip_auth') && !bannerVisible){
-        showAuthModal();
-      }
-    }, 10000);
   }
 };
 
@@ -1872,7 +1890,6 @@ function showAuthModal(){
 
 function closeAuthModal(){
   document.getElementById('authOverlay').style.display = 'none';
-  localStorage.setItem('cc_skip_auth','1');
 }
 
 function applyAuthLang(){
@@ -1988,8 +2005,8 @@ async function loadUserData(){
 // saveLogs 오버라이드 - Firebase 저장
 const _origSaveLogs = window.saveLogs;
 window.saveLogs = async function(){
+  if(!currentUser) return; // 비로그인 시 저장 완전 차단
   localStorage.setItem('cc_logs', JSON.stringify(logs));
-  if(!currentUser) return;
   // 최신 로그 Firebase에 저장
   try{
     const uid = currentUser.uid;
